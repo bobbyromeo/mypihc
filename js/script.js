@@ -23,6 +23,8 @@ MyPi.feed['switch-e'].image.onload = function () {
 }
 
 $(document).ready(function() {
+    $.ajaxSetup({ cache: false });
+    
     enableChooser();
     refreshCronTable(addEvents);
     updateTime();
