@@ -1,0 +1,13 @@
+#python specific
+*.py[co]
+*.sw[po]
+__pycache__
+vendor/
+
+##generic files to ignore
+*~
+*.lock
+*.DS_Store
+*.swp
+*.out
+*.log*

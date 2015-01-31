@@ -1,0 +1,5 @@
+{
+    "require": {
+        "tiben/crontab-manager": "~1.0"
+    }
+}
