@@ -1,7 +1,7 @@
 Power Control
 ==================
 
-A webinterface to remotely control/schedule 433MHz power switches, a PIR sensor alarm, and record from foscam IP cameras all through a Raspberry Pi. At the very least it needs IP cameras to function.
+A web interface to remotely control/schedule 433MHz power switches, a PIR sensor alarm, and record from foscam IP cameras all through a Raspberry Pi. At the very least it needs IP cameras and of course a Raspberry Pi to function.
 
 Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-raspberry-pi-foscam-sensors/) for instructions and screenshots.
 
@@ -12,9 +12,10 @@ All configuration is handle in the file: config.ini
 
     i) Configure your cameras in the appropriate sections [camera1], [camera2]
 
-    ii) Enable the camera module "use_camera_module=" in section [config]
+    ii) Enable the camera module "use_camera_module=" in section [config]. Switches d, e handle 
+        the recording for the cameras
 
-    iii) Save to path in the [config] section, "save_to_dir=" 
+    iii) Configure a save directory in the [config] section, "save_to_dir=" 
 
     iii) Alter the crontab so user www-data can modify crontabs under the user pi
     www-data ALL=(pi) NOPASSWD: /usr/bin/crontab
@@ -39,8 +40,8 @@ Requirements
         sudo chmod 775 /var/www
         sudo usermod -a -G www-data pi
 
-    iv) sudo chmod -vR g+w /var/www/powercontrol
-        sudo chown -R www-data:www-data /var/www/powercontrol
+    iv) sudo chmod -vR g+w /var/www/mypihc
+        sudo chown -R www-data:www-data /var/www/mypihc
 
 
 2) Install Crontab Manager https://github.com/TiBeN/CrontabManager
@@ -67,25 +68,41 @@ Requirements
 4) If you want to use a 433Mhz TX/RX module (OPTIONAL)
     (Cheap transmitter/receiver: http://www.ebay.ca/itm/5pcs-433Mhz-RF-transmitter-and-receiver-kit-for-Arduino-/251673838721?pt=LH_DefaultDomain_0&hash=item3a98ee0481)
 
-    i) git clone git://github.com/ninjablocks/433Utils.git
+    i) Follow the instructions to install the wiringpi library. After that you can compile the example programs by executing make. Install WiringPi from https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install//
 
-    ii) cd 433Kit/RPi_utils
+    ii) git clone git://github.com/ninjablocks/433Utils.git
 
-    iii) Change line "mySwitch.send(code, 26);" in codesend.cpp ( I had to do this in my case as my codes were longer)
+    iii) cd 433Kit/RPi_utils
 
-    iv) Install WiringPi from https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install/
+    iv) Change line "mySwitch.send(code, 26);" in codesend.cpp (I had to do this in my case as my codes were longer), execute make all
     
-    v)(As per the original rc_switch distribution) Follow the instructions to install the wiringpi library. After that you can compile the example programs by executing make.
+    v) Copy codesend to {PATH_TO_WWW}/mypihc/bin
 
-    vi) Copy codesend to /var/www/powercontrol/bin/ or {PATH_TO_WWW}/powercontrol/bin
+    vi) **NOTE** You will need to use RFSniffer to get your specific codes and then enter them in the config.ini in the appropriate section.
+        Switches a, b in the config file handle this.
 
-    vii) **NOTE** You will need to use RFSniffer to get your specific codes and then enter them in the config.ini in the appropriate section
+    vii) Enable the module "use_433mhz_module=" in section [config]
+
+    viii) For the 433mhz emitter if using it
+        www-data ALL=NOPASSWD: {PATH_TO_WWW}/mypihc/bin/codesend
 
 5) If you want to use a PIR Sensor (OPTIONAL)
-    PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
+    i) PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
+
+    ii) Enable the module "use_pir_module=" in section [config]. Switch c handles this. 
+
+    iii) Configure the options in the [pir] section
+
+        - "email_on_motion": will email you provided you fill out the [email] section
+        - "record_on_motion": kicks off a recording from a give camera when motion is triggered (record_with_camera1)
+        - "arm_camera": turns on the camera's built-in email images feature (of course you need to configure the camera appropriately)
+        - "send_sms": sends an email to your phone (to the email set in "email_sms" configured in [email] section)
+
+    iv) Grant sudo access
+    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/pir/pir.sh
 
 6) If you want to use the DHT22 temperature and humdity sensor (OPTIONAL)
-    https://www.youtube.com/watch?v=IHTnU1T8ETk
+    (Watch for more info: https://www.youtube.com/watch?v=IHTnU1T8ETk)
 
     i) Pinout on the DHT22
     PIN 1 --> VCC, 
@@ -105,19 +122,19 @@ Requirements
                          |
         gpio ------------+
 
-    3) Compile instructions:
+    iii) Compile instructions:
         cd ~
         git clone https://github.com/adafruit/Adafruit_Python_DHT.git
         cd Adafruit_Python_DHT
         sudo python setup.py install
 
-7) Modify visudo (OPTIONAL)
+    iv) Enable the module "use_dht22_module=" in section [config]
+
+    v) Grant sudo access
+    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/dht22/dht22.sh
     
-    i) For the 433mhz emitter if using it
-    www-data ALL=NOPASSWD: {PATH_TO_WWW}/powercontrol/bin/codesend
+   
 
-    ii) For the PIR sensor if using it
-    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/powercontrol/bin/pir/pir.sh
+    
 
-    iii) For the DHT22 module if using it
-    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/powercontrol/bin/dht22/dht22.sh
+    
