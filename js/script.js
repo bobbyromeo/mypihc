@@ -127,7 +127,6 @@ function updateDHT22() {
     $.ajax({
         url: 'update.php',
         type: 'GET',
-        cache: false,
         timeout: 10000,
         data: { action: "dht22" },
     }).done(function(data) {
@@ -149,7 +148,7 @@ function updateTime() {
     $.ajax({
         url: 'update.php',
         type: 'GET',
-        cache: false,
+        timeout: 10000,
         data: { action: "updatetime" },
     }).done(function(data) {
         if (data.result) {
@@ -158,6 +157,10 @@ function updateTime() {
                 updateTime();
             }, MyPi.updateTimeInterval);
         }
+    }).fail(function(jqXHR, textStatus) {
+        if(textStatus == 'timeout') {     
+            alert('Unable to poll for time'); 
+        }
     });
 }
 
@@ -165,7 +168,7 @@ function updateUptime() {
     $.ajax({
         url: 'update.php',
         type: 'GET',
-        cache: false,
+        timeout: 10000,
         data: { action: "uptime" },
     }).done(function(data) {
         if (data.result) {
@@ -173,6 +176,10 @@ function updateUptime() {
             setTimeout(function () {
                 updateUptime();
             }, MyPi.updateUptimeInterval);
+        }
+    }).fail(function(jqXHR, textStatus) {
+        if(textStatus == 'timeout') {     
+            alert('Unable to poll for up time'); 
         }
     });
 }
@@ -186,7 +193,6 @@ function updateImage(switchID) {
     $.ajax({
         url: 'update.php',
         type: 'GET',
-        cache: false,
         timeout: 2000,
         data: { action: "updateImage", "switch": switchID },
     }).done(function(data) {
