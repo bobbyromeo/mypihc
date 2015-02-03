@@ -87,6 +87,7 @@ Requirements
         www-data ALL=NOPASSWD: {PATH_TO_WWW}/mypihc/bin/codesend
 
 5) If you want to use a PIR Sensor (OPTIONAL)
+
     i) PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
 
     ii) Enable the module "use_pir_module=" in section [config]. Switch c handles this. 
