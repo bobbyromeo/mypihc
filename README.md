@@ -30,7 +30,7 @@ Requirements
 
 1) Install lighttpd and php5 from http://chris-labs.de/hardware/raspberrypi/2013/10/10/raspberrypi-433mhz-switch-control.html
 
-    i) sudo apt-get install lighttpd mysql-server php5-common php5-cgi php5 php5-mysql php5-cli
+    i) sudo apt-get install lighttpd php5-common php5-cgi php5 php5-cli
 
     ii) Tell lighttpd to use fastcgi-php and reload the server:
         sudo lighty-enable-mod fastcgi-php
