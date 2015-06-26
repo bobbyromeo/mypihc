@@ -12,13 +12,15 @@ All configuration is handle in the file: config.ini
 
     i) Configure your cameras in the appropriate sections [camera1], [camera2]
 
-    ii) Enable the camera module "use_camera_module=" in section [config]. Switches d, e handle 
+    ii) Enable the camera module "use_camera_module=" in section [config]. Switches d, e handle
         the recording for the cameras
 
-    iii) Configure a save directory in the [config] section, "save_to_dir=" 
+    iii) Configure a save directory in the [config] section, "save_to_dir="
 
-    iii) Alter the crontab so user www-data can modify crontabs under the user pi
+    iii) Alter the crontab so user www-data can modify crontabs under the user pi, also make sure the pi can use sudi w/o a password
+
     www-data ALL=(pi) NOPASSWD: /usr/bin/crontab
+    pi ALL=(ALL) NOPASSWD:ALL
 
     iv) Install ffmpeg (See below)
 
@@ -45,7 +47,7 @@ Requirements
 
 
 2) Install Crontab Manager https://github.com/TiBeN/CrontabManager
-    
+
     i) install composer:
         echo "<?php echo file_get_contents('https://getcomposer.org/composer.phar') ?>" | php > composer.phar
         sudo mv composer.phar /usr/local/bin/composer
@@ -75,7 +77,7 @@ Requirements
     iii) cd 433Kit/RPi_utils
 
     iv) Change line "mySwitch.send(code, 26);" in codesend.cpp (I had to do this in my case as my codes were longer), execute make all
-    
+
     v) Copy codesend to {PATH_TO_WWW}/mypihc/bin
 
     vi) **NOTE** You will need to use RFSniffer to get your specific codes and then enter them in the config.ini in the appropriate section.
@@ -90,7 +92,7 @@ Requirements
 
     i) PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
 
-    ii) Enable the module "use_pir_module=" in section [config]. Switch c handles this. 
+    ii) Enable the module "use_pir_module=" in section [config]. Switch c handles this.
 
     iii) Configure the options in the [pir] section
 
@@ -106,9 +108,9 @@ Requirements
     (Watch for more info: https://www.youtube.com/watch?v=IHTnU1T8ETk)
 
     i) Pinout on the DHT22
-    PIN 1 --> VCC, 
-    PIN 2 --> GPIO 4, 
-    PIN 3 --> NOT USED, 
+    PIN 1 --> VCC,
+    PIN 2 --> GPIO 4,
+    PIN 3 --> NOT USED,
     PIN 4 --> GROUND
 
     ii) Voltage divider need to protect GPIO pin
@@ -132,10 +134,10 @@ Requirements
     iv) Enable the module "use_dht22_module=" in section [config]
 
     v) Grant sudo access
-    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/dht22/dht22.sh
-    
-   
+    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/dht22/dht22.py
 
-    
 
-    
+
+
+
+

@@ -15,9 +15,9 @@ if ($_POST) {
         $output = "";
         $result = false;
         try {
-            if(isset($_POST['switch']) && array_key_exists($_POST['switch'], $ini_array) && 
+            if(isset($_POST['switch']) && array_key_exists($_POST['switch'], $ini_array) &&
                 isset($_POST['state']) && array_key_exists($_POST['state'], $ini_array['switch-a'])) {
-                $crontabRepository = new CrontabRepositoryExtends(new CrontabAdapter('pi', true));
+                $crontabRepository = new CrontabRepositoryExtends(new CrontabAdapter($ini_array['config']['cron_user'], true));
 
                 $crontabJob = new CrontabJob();
                 $crontabJob->minutes = ($_POST['minute_chooser'] == "0") ? "*" : $_POST['minute'];
@@ -31,7 +31,7 @@ if ($_POST) {
                 $crontabJob->taskCommandLine = ($ini_array[$_POST['switch']]['use_sudo']) ? 'sudo ' . $cmd : $cmd;
                 $crontabJob->comments = 'PowerControl:'.uniqid().':'.$ini_array[$_POST['switch']]['name'].':'.$_POST['state'];
                 $crontabJob->enabled = true;
-                
+
                 $crontabRepository->addJob($crontabJob);
                 $crontabRepository->persist();
                 $result = true;
@@ -58,13 +58,13 @@ if ($_GET) {
         $result = false;
         $output = "";
         try {
-            $crontabRepository = new CrontabRepositoryExtends(new CrontabAdapter('pi', true));
+            $crontabRepository = new CrontabRepositoryExtends(new CrontabAdapter($ini_array['config']['cron_user'], true));
             $arrayJobs = $crontabRepository->findJobByRegexComment('/PowerControl/');
             $result = true;
         } catch (Exception $e) {
             $output = 'Caught exception: ' . $e->getMessage();
             error_log($output);
-        }    
+        }
         $data = array( 'output' => $arrayJobs, 'result' => $result);
         header('Content-Type: application/json');
         echo json_encode($data);
@@ -78,7 +78,7 @@ if ($_GET) {
         $getSwitch = $_GET['switch'];
         $getSwitch = 'switch-' . $getSwitch;
         $getTargetState = $_GET['state'];
-        
+
         if (array_key_exists($getSwitch, $ini_array)) {
             if($getTargetState === '1') {
                 $cmd = __DIR__ . '/' . join('/', array(trim($ini_array[$getSwitch]['turn_on'], '/')));
@@ -132,7 +132,7 @@ if ($_GET) {
             $output = "";
             $uuid = $_GET['uuid'];
             try {
-                $crontabRepository = new CrontabRepositoryExtends(new CrontabAdapter('pi', true));
+                $crontabRepository = new CrontabRepositoryExtends(new CrontabAdapter($ini_array['config']['cron_user'], true));
                 $results = $crontabRepository->findJobByRegexComment('/'.preg_quote($uuid).'/');
                 if(count($results) == 1) {
                     if ($_GET['action'] == "delete") {
