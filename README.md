@@ -33,6 +33,7 @@ Requirements
     i) sudo apt-get install lighttpd php5-common php5-cgi php5 php5-cli
 
     ii) Tell lighttpd to use fastcgi-php and reload the server:
+
         sudo lighty-enable-mod fastcgi-php
         sudo service lighttpd force-reload
 
@@ -143,14 +144,14 @@ Requirements
 7) If you want to get Google Voice SMS working (and provided you have a GV account) to the following:
 
     i) PY Google Voice Installation
-    cd /root
-    git clone https://github.com/wardmundy/pygooglevoice
-    cd pygooglevoice
-    python setup.py install
-    cp /root/pygooglevoice/bin/gvoice /usr/bin/
+        cd /root
+        git clone https://github.com/wardmundy/pygooglevoice
+        cd pygooglevoice
+        python setup.py install
+        cp /root/pygooglevoice/bin/gvoice /usr/bin/
 
     ii) Test it out
-    gvoice -e USER_NAME -p PASSWORD send_sms SMS_NUMBER_RECIPIENT "Message"
+        gvoice -e USER_NAME -p PASSWORD send_sms SMS_NUMBER_RECIPIENT "Message"
 
 
 
