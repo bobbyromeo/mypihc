@@ -100,6 +100,7 @@ Requirements
         - "record_on_motion": kicks off a recording from a give camera when motion is triggered (record_with_camera1)
         - "arm_camera": turns on the camera's built-in email images feature (of course you need to configure the camera appropriately)
         - "send_sms": sends an email to your phone (to the email set in "email_sms" configured in [email] section)
+        - "send_gv_sms": sends a Google Voice SMS to <sms_num> provider you fill out the [gv] section
 
     iv) Grant sudo access
     www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/pir/pir.sh
