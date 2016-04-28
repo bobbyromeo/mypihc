@@ -1,6 +1,7 @@
 var MyPi = {};
 MyPi.updateTimeInterval = 1000;
 MyPi.updateDHT22Interval = 60000;
+MyPi.updateCheckSwitchInterval = 60000;
 MyPi.updateUptimeInterval = 60000;
 MyPi.updateImageInterval = 250;
 MyPi.feed = {
@@ -24,7 +25,7 @@ MyPi.feed['switch-e'].image.onload = function () {
 
 $(document).ready(function() {
     $.ajaxSetup({ cache: false });
-    
+
     enableChooser();
     refreshCronTable(addEvents);
     updateTime();
@@ -32,9 +33,12 @@ $(document).ready(function() {
 
     if ($(':hidden#use_dht22_module').val()) updateDHT22();
     if ($(':hidden#use_camera_module').val()) {
+        checkSwitchStatus('d');
+        checkSwitchStatus('e');
         updateImage('d');
         updateImage('e');
     }
+    if ($(':hidden#use_pir_module').val()) checkSwitchStatus('c');
 
     // Buttons
     $('.switchButton').each(function(index, button) {
@@ -98,24 +102,33 @@ function turnOff(switchID) {
 }
 
 function callSwitchControl(switchID, state) {
+    var label = $('label[class*="switch-'+switchID+'"]');
+
     function on_error(text) {
-        alert("Control failed"+((text)?': '+text:''));
+        alert("Switch control failed, please check log: " + ((text)?': '+text: 'unknown'));
+        label.removeClass("text-danger");
+        $('#switch-'+switchID+'-spinner').addClass('hidden');
     }
-    $.get('crontab_manager.php', { 'action': 'control', 'switch': switchID, state: state })
+    $.get('site_manager.php', { 'action': 'control', 'switch': switchID, state: state })
         .done(function(data) {
             if (data.result) {
-                var label = $('label[class="switch-'+switchID+'"]');
+                // var label = $('label[class="switch-'+switchID+'"]');
                 if (switchID == "c" || switchID == "d" || switchID == "e") {
                     if (data.output.indexOf("started") > -1) {
-                        var value = label.text();
-                        var result = value.replace(/^([\w\W]*)(\b\s*)$/, "$& <span class=\"text-danger\">(Running...)</span>");
-                        $(label).html(result);
+                        // var value = label.text();
+                        // var result = value.replace(/^([\w\W]*)(\b\s*)$/, "$& <span class=\"text-danger\">(Running...)</span>");
+                        // $(label).html(result);
+                        label.addClass("text-danger");
+                        $('#switch-'+switchID+'-spinner').removeClass('hidden');
                     }
-                    if (data.output.indexOf("stopped") > -1)
-                        label.find("span").remove();
+                    if (data.output.indexOf("stopped") > -1) {
+                        // label.find("span").remove();
+                        label.removeClass("text-danger");
+                        $('#switch-'+switchID+'-spinner').addClass('hidden');
+                    }
                 }
             } else {
-               on_error(data.output); 
+               on_error(data.output);
             }
         })
         .fail(function() {
@@ -123,30 +136,61 @@ function callSwitchControl(switchID, state) {
         });
 }
 
-function updateDHT22() {
+function checkSwitchStatus(switchID) {
+    var label = $('label[class*="switch-'+switchID+'"]');
     $.ajax({
-        url: 'update.php',
+        url: 'site_manager.php',
         type: 'GET',
-        timeout: 10000,
+        timeout: 20000,
+        data: { action: "checkSwitchStatus", "switch": switchID },
+    }).done(function(data) {
+        if (data.result) {
+            label.addClass("text-danger");
+            $('#switch-'+switchID+'-spinner').removeClass('hidden');
+        } else {
+            label.removeClass("text-danger");
+            $('#switch-'+switchID+'-spinner').addClass('hidden');
+        }
+        setTimeout(function () {
+            checkSwitchStatus(switchID);
+        }, MyPi.updateCheckSwitchInterval);
+    }).fail(function(jqXHR, textStatus) {
+        label.removeClass("text-danger");
+        $('#switch-'+switchID+'-spinner').addClass('hidden');
+        if(textStatus == 'timeout') {
+            alert('Unable to poll for switch status');
+        }
+    });
+}
+
+function updateDHT22() {
+    $("#dht22").empty();
+    $('#ajaxSpinnerContainer').show();
+    $.ajax({
+        url: 'site_manager.php',
+        type: 'GET',
+        timeout: 20000,
         data: { action: "dht22" },
     }).done(function(data) {
         if (data.result) {
             $("#dht22").html(data.output.temperature+'&#8451; / '
                 + data.output.humidity + '%');
+            $('#ajaxSpinnerContainer').hide();
             setTimeout(function () {
                 updateDHT22();
             }, MyPi.updateDHT22Interval);
         }
     }).fail(function(jqXHR, textStatus) {
-        if(textStatus == 'timeout') {     
-            $("#dht22").html('Unable to poll DHT22 sensor'); 
+        $('#ajaxSpinnerContainer').hide();
+        if(textStatus == 'timeout') {
+            $("#dht22").html('Unable to poll DHT22 sensor');
         }
     });
 }
 
 function updateTime() {
     $.ajax({
-        url: 'update.php',
+        url: 'site_manager.php',
         type: 'GET',
         timeout: 10000,
         data: { action: "updatetime" },
@@ -158,15 +202,15 @@ function updateTime() {
             }, MyPi.updateTimeInterval);
         }
     }).fail(function(jqXHR, textStatus) {
-        if(textStatus == 'timeout') {     
-            alert('Unable to poll for time'); 
+        if(textStatus == 'timeout') {
+            alert('Unable to poll for time');
         }
     });
 }
 
 function updateUptime() {
     $.ajax({
-        url: 'update.php',
+        url: 'site_manager.php',
         type: 'GET',
         timeout: 10000,
         data: { action: "uptime" },
@@ -178,8 +222,8 @@ function updateUptime() {
             }, MyPi.updateUptimeInterval);
         }
     }).fail(function(jqXHR, textStatus) {
-        if(textStatus == 'timeout') {     
-            alert('Unable to poll for up time'); 
+        if(textStatus == 'timeout') {
+            alert('Unable to poll for up time');
         }
     });
 }
@@ -191,13 +235,13 @@ function updateImage(switchID) {
         $('canvas#switch-'+switchID).parent().find('p.desc_content').text('Feed disabled');
     }
     $.ajax({
-        url: 'update.php',
+        url: 'site_manager.php',
         type: 'GET',
         timeout: 2000,
         data: { action: "updateImage", "switch": switchID },
     }).done(function(data) {
         if (data.result) {
-            $('.btn-group .switch-'+switchID).attr('disabled', false);
+            //$('.btn-group .switch-'+switchID).attr('disabled', false);
             displayImage(data.output, switchID);
             setTimeout(function () {
                 updateImage(switchID);
@@ -250,7 +294,7 @@ function addEvents() {
 }
 
 function refreshCronTable(callback) {
-    $.get('crontab_manager.php', { 'action': 'listcron'}) 
+    $.get('crontab_manager.php', { 'action': 'listcron'})
         .done(function(data) {
             if(data.result) {
                 var tblRow = '';

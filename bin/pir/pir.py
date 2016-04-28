@@ -3,7 +3,7 @@
 # pir.py
 # Detect movement using a PIR module
 #
-# Author : Joe Lones
+# Author : Bobby
 # Date   : 21/01/2013
 
 # Import required Python libraries
@@ -14,6 +14,7 @@ import sys
 import subprocess
 import os
 import logging
+import logging.config
 import ConfigParser
 import datetime
 import threading
@@ -24,9 +25,113 @@ import shlex
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+# global variables
+already_armed = 0
+already_sent = 0
+already_recording = 0
+already_sent_sms = 0
+
+c = {}
+t1_stop = None
+t1 = None
+is_error = None
+
+logging.config.fileConfig(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'logging.conf')))
+log = logging.getLogger(__name__)
+
+
+def getSettings():
+    global c, is_error
+    camera_to_use_record = None
+    filename = "config.ini"
+    config = ConfigParser.ConfigParser()
+    config.read(os.path.join(os.path.dirname(__file__), '../..', filename))
+
+    c['email_on_motion'] = config.get('pir', 'email_on_motion')
+    c['record_on_motion'] = config.get('pir', 'record_on_motion')
+    c['arm_camera'] = config.get('pir', 'arm_camera')
+    c['send_sms'] = config.get('pir', 'send_sms')
+
+    c['send_gv_sms'] = config.get('pir', 'send_gv_sms')
+    c['gv_user'] = config.get('gv', 'gv_user')
+    c['gv_passwd'] = config.get('gv', 'gv_passwd')
+    c['sms_num'] = config.get('gv', 'sms_num')
+    c['temp_threshold_cel'] = config.get('dht22', 'temp_threshold_cel')
+    c['temp_threshold_alerts'] = config.get('dht22', 'temp_threshold_alerts')
+
+    c['use_pir_module'] = config.get('config', 'use_pir_module')
+    c['use_camera_module'] = config.get('config', 'use_camera_module')
+
+    for i in ['camera1', 'camera2']:
+        if config.get('pir', 'record_with_' + i):
+            camera_to_use_record = i
+
+    if c['use_pir_module']:
+        if (camera_to_use_record in config.sections()):
+            c['cam_ip'] = config.get(camera_to_use_record, 'ip')
+            c['cam_user'] = config.get(camera_to_use_record, 'username')
+            c['cam_password'] = config.get(camera_to_use_record, 'password')
+            c['cam_prefix_file_name'] = config.get(camera_to_use_record, 'name')
+            c['cam_motion_sensitivity'] = config.get(camera_to_use_record, 'cam_motion_sensitivity')
+
+            if not all([c['cam_ip'], c['cam_user'], c['cam_password'], c['cam_prefix_file_name'], c['cam_motion_sensitivity']]):
+                log.error("Missing camera specific parameters for PIR module")
+                is_error = True
+        else:
+            log.error("Error selecting camera recording for PIR module, exiting")
+            is_error = True
+
+    if c['use_pir_module'] or c['arm_camera']:
+        c['path_to_wget'] = config.get('config', 'path_to_wget')
+        if not (os.path.isfile(c['path_to_wget']) and os.access(c['path_to_wget'], os.X_OK)):
+            log.error("Path to wget not set correctly")
+            is_error = True
+
+    if c['use_pir_module'] or c['use_camera_module']:
+        c['path_to_ffmpeg'] = config.get('config', 'path_to_ffmpeg')
+        if not (os.path.isfile(c['path_to_ffmpeg']) and os.access(c['path_to_ffmpeg'], os.X_OK)):
+            log.error("Path to ffmpeg: " + c['path_to_ffmpeg'] + " not set correctly")
+            is_error = True
+
+    c['cam_record_length'] = int(config.get('config', 'cam_record_length'))
+    c['cam_days_to_purge'] = int(config.get('config', 'days_to_purge'))
+
+    c['email_from_addr'] = config.get('email', 'email_from_addr')
+    c['email_user'] = config.get('email', 'email_user')
+    c['email_passwd'] = config.get('email', 'email_passwd')
+    c['email_smtp'] = config.get('email', 'email_smtp')
+    c['email_smtp_port'] = config.get('email', 'email_smtp_port')
+    c['email_send_to'] = config.get('email', 'email_send_to')
+    c['email_sms'] = config.get('email', 'email_sms')
+
+    if not all([c['email_from_addr'], c['email_user'], c['email_passwd'], c['email_smtp'], c['email_smtp_port'], c['email_send_to']]):
+        log.error("Missing parameters for sending emails")
+        is_error = True
+
+    c['save_to_dir'] = config.get('config', 'save_to_dir')
+    # check if save to directory exists
+    if not os.path.isdir(c['save_to_dir']):
+        log.error("Directory: " + c['save_to_dir'] + " does not exist, exiting")
+        is_error = True
+# Always run get settings
+getSettings()
+
+
+def change_file_owner(owner, filename):
+    from pwd import getpwuid, getpwnam
+    from grp import getgrnam
+    try:
+        if getpwuid(os.stat(filename).st_uid).pw_name != owner:
+            uid = getpwnam(owner).pw_uid
+            gid = getgrnam(owner).gr_gid
+            os.chown(filename, uid, gid)
+    except Exception, e:
+        log.error("Unable to change owner %s of file: %s; %s" % (owner, filename, str(e)))
+change_file_owner('www-data', os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'mypihc.log')))
+
 
 def signal_handler(signal, frame):
-    global c, t1Stop, t1, already_armed, already_recording
+    global c, t1_stop, t1, already_armed, already_recording
     log.warn('Application received signal to exit!')
     if already_armed and c['arm_camera']:
         log.info("Disarming camera(s)...")
@@ -35,7 +140,7 @@ def signal_handler(signal, frame):
     if already_recording and ['record_on_motion']:
         log.info("Stopping recording...")
 
-        t1Stop.set()
+        t1_stop.set()
         t1.join()
         if t1.isAlive():
             log.debug("Thread alive")
@@ -45,6 +150,23 @@ def signal_handler(signal, frame):
     log.warn('Program exit!')
     GPIO.cleanup()
     sys.exit(0)
+
+
+def which(program):
+    def is_exe(fpath):
+        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
+    fpath, fname = os.path.split(program)
+    if fpath:
+        if is_exe(program):
+            return program
+    else:
+        for path in os.environ["PATH"].split(os.pathsep):
+            path = path.strip('"')
+            exe_file = os.path.join(path, program)
+            if is_exe(exe_file):
+                return exe_file
+    return None
 
 
 def armCamera(flag):
@@ -63,20 +185,8 @@ def armCamera(flag):
         already_armed = 0
 
     command = [
-        c['path_to_wget'],
-        '-q',
-        '-O',
-        '-',
-        'http://' \
-            + c['cam_ip'] \
-            + '/set_alarm.cgi?motion_armed=1&motion_sensitivity=' \
-            + c['cam_motion_sensitivity'] \
-            + '&mail=' \
-            + str(flag) \
-            + '&user=' \
-            + c['cam_user'] \
-            + '&pwd=' \
-            + c['cam_password']
+        c['path_to_wget'], '-q', '-O', '-',
+        'http://' + c['cam_ip'] + '/set_alarm.cgi?motion_armed=1&motion_sensitivity=' + c['cam_motion_sensitivity'] + '&mail=' + str(flag) + '&user=' + c['cam_user'] + '&pwd=' + c['cam_password']
     ]
     log.debug(' '.join(command))
     p = subprocess.Popen(command, stdout=subprocess.PIPE)
@@ -84,10 +194,8 @@ def armCamera(flag):
     log.debug('Command Output: ' + stdout.strip(' \t\n\r'))
 
 
-def sendEmail(toAddr, fromAddr, subject, body):
-    global c, log
-
-    if not all ([['email_smtp'], c['email_smtp_port'], c['email_user'], c['email_passwd'], toAddr]):
+def sendEmail(toAddr, fromAddr, subject, body, smtp_server, smtp_port, smtp_user, smtp_passwd):
+    if not all([toAddr, fromAddr, smtp_server, smtp_port, smtp_user, smtp_passwd]):
         log.error("Cannot send email due to missing parameters")
         return
 
@@ -110,19 +218,44 @@ def sendEmail(toAddr, fromAddr, subject, body):
     message.attach(htmlBody)
 
     # The actual sending of the e-mail
-    smtp = c['email_smtp']+':'+str(c['email_smtp_port'])
+    smtp = smtp_server + ':' + str(smtp_port)
     server = smtplib.SMTP(smtp)
 
     # Print debugging output when testing
     # server.set_debuglevel(1)
     server.starttls()
-    server.login(c['email_user'], c['email_passwd'])
+    server.login(smtp_user, smtp_passwd)
     server.sendmail(fromAddr, toAddr, message.as_string())
     server.quit()
 
 
+def sendGVSMS(gv_user, gv_passwd, sms_num, sms_msg):
+    global c
+    if not all([gv_user, gv_passwd, sms_num]):
+        log.error("Cannot send GV SMS due to missing parameters")
+        return
+
+    gvoice_bin = which('gvoice')
+    if gvoice_bin is None:
+        log.error("Cannot send GV SMS due to missing binary: gvoice")
+        return
+    # CMD: /usr/bin/gvoice -e $GVACCT -p $GVPASS send_sms $SMSNUM "$SMSMSG"
+    command = [
+        gvoice_bin,
+        '-e', gv_user,
+        '-p', gv_passwd,
+        'send_sms',
+        sms_num,
+        sms_msg
+    ]
+    log.debug(' '.join(command))
+    p = subprocess.Popen(command, stdout=subprocess.PIPE)
+    stdout, stderr = p.communicate()
+    log.debug('Command Output: ' + stdout.strip(' \t\n\r'))
+
+
 def startRecord(arg, stop_event):
-    global c, log
+    global c
     p = None
 
     target_dir = os.path.join(c['save_to_dir'], 'pir')
@@ -140,11 +273,11 @@ def startRecord(arg, stop_event):
         log.debug("In thread...")
         if p:
             p.terminate()
-        
+
         cmd = c['path_to_ffmpeg'] + ' -use_wallclock_as_timestamps 1 -f mjpeg -i "http://' + c['cam_ip'] + '/videostream.cgi?user=' \
             + c['cam_user'] + '&pwd=' + c['cam_password'] + '" -i "http://' + c['cam_ip'] + '/videostream.asf?user=' + c['cam_user'] \
             + '&pwd=' + c['cam_password'] + '" -map 0:v -map 1:a -acodec copy -vcodec copy '  \
-            + os.path.join(target_dir, c['cam_prefix_file_name'] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv') 
+            + os.path.join(target_dir, c['cam_prefix_file_name'] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv')
         log.debug(shlex.split(cmd))
 
         p = subprocess.Popen(
@@ -157,103 +290,28 @@ def startRecord(arg, stop_event):
     p.terminate()
 
 
-def getSettings(s):
-    camera_to_use_record = None
-    filename = "config.ini"
-    config = ConfigParser.ConfigParser()
-    config.read(os.path.join(os.path.dirname(__file__), '../..', filename))
-
-    s['log_file'] = 'pir.log'
-    s['email_on_motion'] = config.get('pir', 'email_on_motion')
-    s['record_on_motion'] = config.get('pir', 'record_on_motion')
-    s['arm_camera'] = config.get('pir', 'arm_camera')
-    s['send_sms'] = config.get('pir', 'send_sms')
-
-    for i in ['camera1', 'camera2']:
-        if config.get('pir', 'record_with_'+i):
-            camera_to_use_record = i
-  
-    if (camera_to_use_record in config.sections()):
-        s['cam_ip'] = config.get(camera_to_use_record, 'ip')
-        s['cam_user'] = config.get(camera_to_use_record, 'username')
-        s['cam_password'] = config.get(camera_to_use_record, 'password')
-        s['cam_prefix_file_name'] = config.get(camera_to_use_record, 'name')
-        s['cam_motion_sensitivity'] = config.get(camera_to_use_record, 'cam_motion_sensitivity')
-    else:
-        print ("Error selecting \"%s\" for recording, exiting" % camera_to_use_record)
-        sys.exit(1)
-
-    s['path_to_wget'] =  config.get('config', 'path_to_wget')
-    if not (os.path.isfile(s['path_to_wget']) and os.access(s['path_to_wget'], os.X_OK)):
-        print ("Path to wget: " + s['path_to_wget'] + " not set correctly")
-        sys.exit(1)
-
-    s['path_to_ffmpeg'] =  config.get('config', 'path_to_ffmpeg')
-    if not (os.path.isfile(s['path_to_ffmpeg']) and os.access(s['path_to_ffmpeg'], os.X_OK)):
-        print ("Path to ffmpeg: " + s['path_to_ffmpeg'] + " not set correctly")
-        sys.exit(1)
-
-    s['cam_record_length'] = int(config.get('config', 'cam_record_length'))
-    s['cam_days_to_purge'] = int(config.get('config', 'days_to_purge'))
-    s['save_to_dir'] = config.get('config', 'save_to_dir')
-
-    s['email_from_addr'] = config.get('email', 'email_from_addr')
-    s['email_user'] = config.get('email', 'email_user')
-    s['email_passwd'] = config.get('email', 'email_passwd')
-    s['email_smtp'] = config.get('email', 'email_smtp')
-
-    s['email_smtp_port'] = config.get('email', 'email_smtp_port')
-    s['email_send_to'] = config.get('email', 'email_send_to')
-    s['email_sms'] = config.get('email', 'email_sms')
-
-    # check if save to directory exists
-    if not os.path.isdir(s['save_to_dir']):
-        print ("Directory: " + s['save_to_dir'] + " does not exist, exiting")
-        sys.exit(1)
-
-
 def countFiles():
     global c
-    return len([f for f in glob.glob(os.path.join(c['save_to_dir'], c['cam_prefix_file_name']+'*.asf')) if os.path.isfile(f)])
+    return len([f for f in glob.glob(os.path.join(c['save_to_dir'], c['cam_prefix_file_name'] + '*.asf')) if os.path.isfile(f)])
 
-if __name__ == '__main__':
-    # global variables
-    already_armed = 0
-    already_sent = 0
-    already_recording = 0
-    already_sent_sms = 0
 
-    c = {}
-    t1Stop = None
-    t1 = None
-
-    # config data
-    getSettings(c)
-    
-    # configure logging
-    log = logging.getLogger('pir')
-    log.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-
-    handler_stream = logging.StreamHandler()
-    handler_stream.setFormatter(formatter)
-    #handler_stream.setLevel(logging.ERROR)
-    log.addHandler(handler_stream)
-
-    handler_file = logging.FileHandler(os.path.join(os.path.join(os.path.dirname(os.path.abspath(__file__)), c['log_file'])))
-    handler_file.setFormatter(formatter)
-    log.addHandler(handler_file)
+def main():
+    global c, already_sent_sms, already_sent, already_recording, t1_stop, t1, is_error
 
     # catch signals
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
 
+    if is_error:
+        log.error("Unable to start PIR!")
+        return
+
     # Use BCM GPIO references
     # instead of physical pin numbers
     GPIO.setmode(GPIO.BCM)
 
-    #Alerts OFF
+    # Alerts OFF
     GPIO.setwarnings(False)
 
     # Define GPIO to use on Pi
@@ -286,20 +344,46 @@ if __name__ == '__main__':
                 # sms
                 if not already_sent_sms and c['send_sms']:
                     log.info("  Sending sms through email...")
-                    sendEmail(c['email_sms'], c['email_from_addr'], 'Motion detected', 'There\'s been movement detected in the house.')
+                    sendEmail(
+                        c['email_sms'],
+                        c['email_from_addr'],
+                        'Motion detected',
+                        'There\'s been movement detected in the house.',
+                        c['email_smtp'],
+                        c['email_smtp_port'],
+                        c['email_user'],
+                        c['email_passwd'])
+                    already_sent_sms = 1
+                # GV sms
+                if not already_sent_sms and c['send_gv_sms']:
+                    log.info("  Sending sms through GV...")
+                    sendGVSMS(
+                        c['gv_user'],
+                        c['gv_passwd'],
+                        c['sms_num'],
+                        'There\'s been movement detected in the house.')
                     already_sent_sms = 1
                 # email
                 if not already_sent and c['email_on_motion']:
                     log.info("  Sending email...")
-                    sendEmail(c['email_send_to'], c['email_from_addr'], 'Motion detected', 'There\'s been movement detected in the house.')
+                    sendEmail(
+                        c['email_send_to'],
+                        c['email_from_addr'],
+                        'Motion detected',
+                        'There\'s been movement detected in the house.',
+                        c['email_smtp'],
+                        c['email_smtp_port'],
+                        c['email_user'],
+                        c['email_passwd'])
+
                     already_sent = 1
                 # record
                 if not already_recording and c['record_on_motion']:
                     log.info("  Starting recording!")
-                    t1Stop = threading.Event()
+                    t1_stop = threading.Event()
                     t1 = threading.Thread(target=startRecord, args=(
                         1,
-                        t1Stop,
+                        t1_stop,
                     ))
                     t1.start()
                     already_recording = 1
@@ -321,3 +405,6 @@ if __name__ == '__main__':
         log.warn("  Quit")
         # Reset GPIO settings
         GPIO.cleanup()
+
+if __name__ == '__main__':
+    main()

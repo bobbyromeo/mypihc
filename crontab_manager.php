@@ -70,62 +70,6 @@ if ($_GET) {
         echo json_encode($data);
     }
 
-    if (isset($_GET['action']) && $_GET['action'] == "control" &&
-        isset($_GET['switch']) && !empty($_GET['switch'])) {
-        $output = "";
-        $result = false;
-
-        $getSwitch = $_GET['switch'];
-        $getSwitch = 'switch-' . $getSwitch;
-        $getTargetState = $_GET['state'];
-
-        if (array_key_exists($getSwitch, $ini_array)) {
-            if($getTargetState === '1') {
-                $cmd = __DIR__ . '/' . join('/', array(trim($ini_array[$getSwitch]['turn_on'], '/')));
-            } elseif ($getTargetState === '0') {
-                $cmd = __DIR__ . '/' . join('/', array(trim($ini_array[$getSwitch]['turn_off'], '/')));
-            } else {
-                die("ERROR");
-                error_log($output);
-            }
-            $script = substr($cmd, 0, strrpos($cmd, ' '));
-            if (file_exists($script)) {
-                if (isset($ini_array[$getSwitch]['use_as_camera']) && !empty($ini_array[$getSwitch]['use_as_camera'])) {
-                    $camera = $ini_array[$getSwitch]['use_as_camera'];
-                    $cmd = $cmd . ' ' . $camera;
-                }
-                if ($ini_array[$getSwitch]['use_sudo'])
-                    $cmd = 'sudo ' . $cmd;
-
-                try {
-                    $output = shell_exec($cmd);
-                } catch (Exception $e) {
-                    $output = 'Caught exception: ' . $e->getMessage();
-                    error_log($output);
-                }
-                if (preg_match("/sending code/i", $output)) {
-                    $result = true;
-                }
-                if (array_key_exists('pid_file', $ini_array[$getSwitch])) {
-                    $pid_file = __DIR__ . $ini_array[$getSwitch]['pid_file'];
-                    if ($getTargetState === '1' && file_exists($pid_file) && file_get_contents($pid_file)) {
-                        $result = true;
-                    }
-                    if ($getTargetState === '0' && !file_exists($pid_file)) {
-                        $result = true;
-                    }
-                }
-            } else {
-                $output = $script  . ' does not exist!';
-                error_log($output);
-            }
-        }
-
-        $data = array( 'output' => $output, 'result' => $result);
-        header('Content-Type: application/json');
-        echo json_encode($data);
-    }
-
     if (isset($_GET['action']) && ($_GET['action'] == "delete" || $_GET['action'] == "disable")) {
         if(isset($_GET['uuid']) && !empty($_GET['uuid'])) {
             $result = false;

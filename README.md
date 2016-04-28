@@ -86,7 +86,7 @@ Requirements
     vii) Enable the module "use_433mhz_module=" in section [config]
 
     viii) For the 433mhz emitter if using it
-        www-data ALL=NOPASSWD: {PATH_TO_WWW}/mypihc/bin/codesend
+        www-data ALL=NOPASSWD: {PATH_TO_WWW}/mypihc/bin/codesend/codesend.sh
 
 5) If you want to use a PIR Sensor (OPTIONAL)
 
@@ -134,7 +134,7 @@ Requirements
     iv) Enable the module "use_dht22_module=" in section [config]
 
     v) Grant sudo access
-    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/dht22/dht22.py
+    www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/dht22/dht22.sh
 
 
 
