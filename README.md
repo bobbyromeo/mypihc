@@ -100,7 +100,7 @@ Requirements
         - "record_on_motion": kicks off a recording from a give camera when motion is triggered (record_with_camera1)
         - "arm_camera": turns on the camera's built-in email images feature (of course you need to configure the camera appropriately)
         - "send_sms": sends an email to your phone (to the email set in "email_sms" configured in [email] section)
-        - "send_gv_sms": sends a Google Voice SMS to <sms_num> provider you fill out the [gv] section
+        - "send_gv_sms": sends a Google Voice SMS to <sms_num> provider you fill out the [gv] section and have pygooglevoice python library installed (see below)
 
     iv) Grant sudo access
     www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/pir/pir.sh
@@ -140,7 +140,17 @@ Requirements
     vi) Set "temp_threshold_alerts" to 1 and put a value for degrees celsius in "temp_threshold_cel" if you want to be notified via Email/GV if temperature exceeds this value.
 
 
+7) If you want to get Google Voice SMS working (and provided you have a GV account) to the following:
 
+    i) PY Google Voice Installation
+    cd /root
+    git clone https://github.com/wardmundy/pygooglevoice
+    cd pygooglevoice
+    python setup.py install
+    cp /root/pygooglevoice/bin/gvoice /usr/bin/
+
+    ii) Test it out
+    gvoice -e USER_NAME -p PASSWORD send_sms SMS_NUMBER_RECIPIENT "Message"
 
 
 
