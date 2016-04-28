@@ -347,7 +347,7 @@
                                 <option value="15">15</option>
                                 <option value="16">16</option>
                                 <option value="17">17</option>
-                                <option value="18" 18</option>
+                                <option value="18">18</option>
                                 <option value="19">19</option>
                                 <option value="20">20</option>
                                 <option value="21">21</option>
@@ -503,7 +503,7 @@
                                 <option value="1">Monday</option>
                                 <option value="2">Tuesday</option>
                                 <option value="3">Wednesday</option>
-                                <option value="4">Thu sday</option>
+                                <option value="4">Thursday</option>
                                 <option value="5">Friday</option>
                                 <option value="6">Saturday</option>
                             </select>
@@ -530,7 +530,7 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Co trol</th>
+                            <th>Control</th>
                             <th>State</th>
                             <th>Schedule</th>
                             <th>Script</th>
@@ -556,12 +556,12 @@
             ?>
             <br>bobby@bobbyromeo.com
             </span>
-        </div>
+        </div>
     </div>
 
     <!-- Le javascript
-    ======================================== ========= -->
-    <!-- Placed at the end of the document so the pages load f ster -->
+    =================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery-1.11.2.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/script.js"></script>
