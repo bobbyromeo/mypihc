@@ -5,6 +5,7 @@ A web interface to remotely control/schedule 433MHz power switches, a PIR sensor
 
 Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-raspberry-pi-foscam-sensors/) for instructions and screenshots.
 
+![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-1.png)
 
 Configuration
 ==================
