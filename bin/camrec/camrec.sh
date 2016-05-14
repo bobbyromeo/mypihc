@@ -1,10 +1,8 @@
 #!/bin/bash
 PROG="camrec"
 DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-#PID_FILE="$DIR/$PROG.pid"
 
 source "$DIR/../common/utils.sh"
-echo_log "START !!!! $#"
 if [ $# -ne 2 ]; then
     echo_log "Requires two arguments: camera<1|2> <start|stop|restart|status>"
     exit 1
@@ -15,7 +13,7 @@ CAMERA=$2
 PID_FILE="$DIR/$CAMERA.pid"
 
 is_running(){
-  [ -e $PID_FILE ]
+    [ -e $PID_FILE ]
 }
 
 read_config() {
@@ -37,6 +35,11 @@ read_config() {
 start() {
     read_config $CAMERA
     read_config 'config'
+
+    if (is_running); then
+        echo_log "Already running $PROG.sh on $CAMERA"
+        exit 0
+    fi
 
     if [ -n "$save_to_dir" ] && [ -n "$name" ]
     then
@@ -66,7 +69,6 @@ start() {
 
     echo $! > "$PID_FILE"
     echo_log "started"
-    echo "started"
 }
 
 stop(){
@@ -79,7 +81,6 @@ stop(){
         rm "$PID_FILE"
         #return $RETVAL
         echo_log "stopped"
-        echo "stopped"
     else
       echo_log "$PID_FILE not found"
     fi

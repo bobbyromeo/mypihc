@@ -503,7 +503,7 @@
                                 <option value="1">Monday</option>
                                 <option value="2">Tuesday</option>
                                 <option value="3">Wednesday</option>
-                                <option value="4">Thursday</option>
+                                <option value="4">Thu sday</option>
                                 <option value="5">Friday</option>
                                 <option value="6">Saturday</option>
                             </select>
@@ -556,11 +556,11 @@
             ?>
             <br>bobby@bobbyromeo.com
             </span>
-        </div>
+       </div>
     </div>
 
     <!-- Le javascript
-    =================================================== -->
+    ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery-1.11.2.min.js"></script>
     <script src="js/bootstrap.min.js"></script>

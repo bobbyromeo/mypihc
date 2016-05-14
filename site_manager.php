@@ -70,16 +70,9 @@ if ($_GET) {
                 $output = shell_exec($cmd);
             }
             if (!empty($output)) {
-                $arr = explode(',', trim($output));
+                preg_match_all('/\[[^\[\]]*\]/', $output, $matches);
+                $arr = preg_replace("/[^0-9,.]/", "", explode(',', trim($matches[0][0])));
                 $output = array('temperature' => $arr[0], 'humidity' => $arr[1]);
-                // if (isset($ini_array['dht22']['temp_threshold_cel'])) {
-                //     if ($arr[0] > $ini_array['dht22']['temp_threshold_cel']) {
-                //         $gvoice = shell_exec('which gvoice');
-                //         if (empty($gvoice)) {
-                //             error_log("gvoice not present");
-                //         }
-                //     }
-                // }
             }
         } else {
             $output = "DHT module is disabled";

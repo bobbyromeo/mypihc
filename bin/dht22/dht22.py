@@ -23,7 +23,7 @@ def main():
         sys.exit(1)
 
     h, t = dht.read_retry(dht.DHT22, 4)
-    sys.stdout.write("%0.1f,%0.1f" % (t, h))
+    sys.stdout.write("[%0.1f,%0.1f]" % (t, h))
     log.info("Temperature/humidity reading: %0.1f, %0.1f" % (t, h))
 
     log.info("Checking temperature over threshold: %.1f > %.1f = %s" % (t, Decimal(c['temp_threshold_cel']), t > Decimal(c['temp_threshold_cel'])))

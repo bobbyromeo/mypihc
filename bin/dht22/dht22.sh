@@ -16,9 +16,9 @@ OUTPUT=`$PATH_TO_BIN 2>&1&`
 RET=$?
 if [[ $RET -eq 0 ]]
 then
-    echo_log "Successfully ran $PROG [ $OUTPUT ]"
+    echo_log "Successfully ran $PROG, Output: $OUTPUT"
     echo $OUTPUT
 else
-    echo_log "Error: Command $PROG [ $OUTPUT ] returned $RET"
+    echo_log "Error: Command $PROG, Output: $OUTPUT, Returned: $RET"
     exit $RET
 fi

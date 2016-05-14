@@ -5,21 +5,31 @@ OUTPUT=$(ps aux | grep -i ${SERVICE}.py | grep -i python | grep -Ev 'grep|sudo' 
 DIR=`dirname $0`
 PID_FILE="$DIR/$SERVICE.pid"
 
+source "$DIR/../common/utils.sh"
+if [ $# -ne 1 ]; then
+    echo_log "Requires one arguments: <start|stop|restart|status>"
+    exit 1
+fi
+
+is_running(){
+    [ -e $PID_FILE ]
+}
+
 start() {
-    if [ "${#OUTPUT}" -gt 0 ]
-    then 
-        echo "$DATE: $SERVICE service running, everything is fine"
+    if [ "${#OUTPUT}" -gt 0 ] && is_running
+    then
+        echo_log "$DATE: $SERVICE service running, everything is fine"
         exit 0
-    else 
-        echo "$DATE: $SERVICE is not running"
+    else
+        echo_log "$DATE: $SERVICE is not running"
     fi
 
     if ls -l $DIR/$SERVICE.log* >/dev/null 2>&1
     then
-        echo "$DATE: Deleting log file"
+        echo_log "$DATE: Deleting log file"
         sudo rm $DIR/${SERVICE}.log*
     else
-        echo "$DATE: No log file found to delete"
+        echo_log "$DATE: No log file found to delete"
     fi
 
     # PREFIX=$(cat ../../$DIR/config.ini | grep -i name | awk -F= '{print $2}' | tr -d ' ')
@@ -34,24 +44,24 @@ start() {
     #     echo "$DATE: No recording file(s) found to delete"
     # fi
 
-    echo "$DATE: Starting $SERVICE.py"
+    echo_log "$DATE: Starting $SERVICE.py"
     sudo python $DIR/$SERVICE.py > /dev/null 2>&1 &
     echo $! > "$PID_FILE"
-    echo "$DATE: $SERVICE.py started"
+    echo_log "$DATE: $SERVICE.py started"
 }
 
 stop() {
     if [ "${#OUTPUT}" -eq 0 ]
     then
-        echo "$DATE: $SERVICE not running"
+        echo_log "$DATE: $SERVICE not running"
         exit 0
     else
-        echo "$DATE: Attempting to stop $SERVICE..."
+        echo_log "$DATE: Attempting to stop $SERVICE..."
     fi
 
     for p in ${OUTPUT[@]} ; do
         if [[ -n $p ]]
-        then 
+        then
             echo " kill" $p
             sudo kill $p
         else
@@ -59,7 +69,7 @@ stop() {
         fi
     done
     rm "$PID_FILE"
-    echo "$DATE: $SERVICE.py stopped"
+    echo_log "$DATE: $SERVICE.py stopped"
 }
 
 case $1 in
@@ -75,13 +85,13 @@ case $1 in
         ;;
     status)
         if [ "${#OUTPUT}" -gt 0 ]
-        then 
-            echo "$DATE: $SERVICE service running, everything is fine"
-        else 
-            echo "$DATE: $SERVICE is not running"
+        then
+            echo_log "$DATE: $SERVICE service running, everything is fine"
+        else
+            echo_log "$DATE: $SERVICE is not running"
         fi
         ;;
-    *) echo "usage: $0 <start|stop|restart|status>"
+    *) echo_log "usage: $0 <start|stop|restart|status>"
         exit
         ;;
 esac
