@@ -7,6 +7,10 @@ Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-rasp
 
 ![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-1.png)
 
+Ability to schedule jobs. 
+
+![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-2.png)
+
 Configuration
 ==================
 All configuration is handle in the file: config.ini
