@@ -1,5 +1,6 @@
 #!/bin/bash
 SERVICE="pir"
+PROG="pir"
 DATE=`date`
 OUTPUT=$(ps aux | grep -i ${SERVICE}.py | grep -i python | grep -Ev 'grep|sudo' | awk '{ print $2 }')
 DIR=`dirname $0`
@@ -18,18 +19,18 @@ is_running(){
 start() {
     if [ "${#OUTPUT}" -gt 0 ] && is_running
     then
-        echo_log "$DATE: $SERVICE service running, everything is fine"
+        echo_log "$SERVICE service running, everything is fine"
         exit 0
     else
-        echo_log "$DATE: $SERVICE is not running"
+        echo_log "$SERVICE is not running"
     fi
 
     if ls -l $DIR/$SERVICE.log* >/dev/null 2>&1
     then
-        echo_log "$DATE: Deleting log file"
+        echo_log "Deleting log file"
         sudo rm $DIR/${SERVICE}.log*
     else
-        echo_log "$DATE: No log file found to delete"
+        echo_log "No log file found to delete"
     fi
 
     # PREFIX=$(cat ../../$DIR/config.ini | grep -i name | awk -F= '{print $2}' | tr -d ' ')
@@ -44,19 +45,19 @@ start() {
     #     echo "$DATE: No recording file(s) found to delete"
     # fi
 
-    echo_log "$DATE: Starting $SERVICE.py"
+    echo_log "Starting $SERVICE.py"
     sudo python $DIR/$SERVICE.py > /dev/null 2>&1 &
     echo $! > "$PID_FILE"
-    echo_log "$DATE: $SERVICE.py started"
+    echo_log "$SERVICE.py started"
 }
 
 stop() {
     if [ "${#OUTPUT}" -eq 0 ]
     then
-        echo_log "$DATE: $SERVICE not running"
+        echo_log "$SERVICE not running"
         exit 0
     else
-        echo_log "$DATE: Attempting to stop $SERVICE..."
+        echo_log "Attempting to stop $SERVICE..."
     fi
 
     for p in ${OUTPUT[@]} ; do
@@ -69,7 +70,7 @@ stop() {
         fi
     done
     rm "$PID_FILE"
-    echo_log "$DATE: $SERVICE.py stopped"
+    echo_log "$SERVICE.py stopped"
 }
 
 case $1 in
@@ -86,9 +87,9 @@ case $1 in
     status)
         if [ "${#OUTPUT}" -gt 0 ]
         then
-            echo_log "$DATE: $SERVICE service running, everything is fine"
+            echo_log "$SERVICE service running, everything is fine"
         else
-            echo_log "$DATE: $SERVICE is not running"
+            echo_log "$SERVICE is not running"
         fi
         ;;
     *) echo_log "usage: $0 <start|stop|restart|status>"

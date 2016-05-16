@@ -10,6 +10,6 @@ function my_date {
 }
 
 function echo_log {
-    echo "$(my_date),*** - $PROG - $1" >> $LOG_FILE
-    echo "$(my_date),*** - $PROG - $1"
+    echo "$(my_date),BSH - $PROG - $1" >> $LOG_FILE
+    echo "$(my_date),BSH - $PROG - $1"
 }
