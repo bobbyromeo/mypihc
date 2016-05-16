@@ -43,9 +43,10 @@ start() {
 
     if [ -n "$save_to_dir" ] && [ -n "$name" ]
     then
-        save_to_dir=${save_to_dir%/}/$name
         # [ -d $save_to_dir ] || mkdir $save_to_dir
         [ -d $save_to_dir ] ||  { echo_log "Directory: ${save_to_dir} does not exist. Aborting."; exit 1; }
+        mkdir -p ${save_to_dir%/}/mypihc/$name || echo_log "echo_log "Unable to create directory: ${save_to_dir}. Aborting."; exit 1;"
+        save_to_dir=${save_to_dir%/}/mypihc/$name
     else
         echo_log "Unable to read config file for data"
         exit 1

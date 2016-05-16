@@ -16,6 +16,22 @@ logging.config.fileConfig(os.path.abspath(os.path.join(os.path.dirname(__file__)
 log = logging.getLogger(__name__)
 
 
+def remove_file(filename):
+    try:
+        os.remove(filename)
+    except OSError:
+        pass
+
+
+def create_savedir():
+    try:
+        target_dir = os.path.join(CONFIG['save_to_dir'], 'mypihc', 'pir')
+        if not os.path.exists(target_dir):
+            os.makedirs(target_dir)
+    except Exception, e:
+        log.error("Unable to create savedir %s: %s" % (target_dir, str(e)))
+
+
 def getSettings():
     global CONFIG, IS_ERROR
     camera_to_use_record = None

@@ -6,7 +6,6 @@
 # Author : Bobby
 # Date   : 21/01/2013
 
-# Import required Python libraries
 import RPi.GPIO as GPIO
 import time
 import signal
@@ -21,7 +20,7 @@ import glob
 import shlex
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'common')))
-from utils import change_file_owner, sendGVSMS, sendEmail, CONFIG, IS_ERROR
+from utils import change_file_owner, sendGVSMS, sendEmail, CONFIG, IS_ERROR, create_savedir, remove_file
 
 # global variables
 already_armed = 0
@@ -34,6 +33,7 @@ t1 = None
 
 log = logging.getLogger(__name__)
 change_file_owner('www-data', os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'mypihc.log')))
+create_savedir()
 
 
 def signal_handler(signal, frame):
@@ -86,9 +86,10 @@ def armCamera(flag):
 def startRecord(arg, stop_event):
     p = None
 
-    target_dir = os.path.join(CONFIG['save_to_dir'], 'pir')
+    target_dir = os.path.join(CONFIG['save_to_dir'], 'mypihc', 'pir')
     if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
+        log.error("Unable to record PIR videos")
+        return
 
     now = time.time()
     for f in os.listdir(target_dir):
@@ -132,7 +133,8 @@ def main():
 
     if IS_ERROR:
         log.error("Unable to start PIR!")
-        return
+        remove_file(os.path.join(os.path.dirname(__file__), 'pir.pid'))
+        sys.exit(1)
 
     # Use BCM GPIO references
     # instead of physical pin numbers

@@ -27,26 +27,12 @@ start() {
 
     if ls -l $DIR/$SERVICE.log* >/dev/null 2>&1
     then
-        echo_log "Deleting log file"
         sudo rm $DIR/${SERVICE}.log*
-    else
-        echo_log "No log file found to delete"
     fi
-
-    # PREFIX=$(cat ../../$DIR/config.ini | grep -i name | awk -F= '{print $2}' | tr -d ' ')
-    # SAVETODIR=$(cat $DIR/${SERVICE}.ini | grep -i savetodir | awk -F= '{print $2}' | tr -d ' ')
-    # echo $DIR $PREFIX $SAVETODIR
-    # exit 0
-    # if ls -l $SAVETODIR/${PREFIX}_* >/dev/null 2>&1
-    # then
-    #     echo "$DATE: Deleting old recording file(s)"
-    #     sudo rm $SAVETODIR/${PREFIX}_*
-    # else
-    #     echo "$DATE: No recording file(s) found to delete"
-    # fi
 
     echo_log "Starting $SERVICE.py"
     sudo python $DIR/$SERVICE.py > /dev/null 2>&1 &
+    # sudo python $DIR/$SERVICE.py
     echo $! > "$PID_FILE"
     echo_log "$SERVICE.py started"
 }

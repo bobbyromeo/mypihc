@@ -112,17 +112,12 @@ function callSwitchControl(switchID, state) {
     $.get('site_manager.php', { 'action': 'control', 'switch': switchID, state: state })
         .done(function(data) {
             if (data.result) {
-                // var label = $('label[class="switch-'+switchID+'"]');
                 if (switchID == "c" || switchID == "d" || switchID == "e") {
                     if (data.output.indexOf("started") > -1) {
-                        // var value = label.text();
-                        // var result = value.replace(/^([\w\W]*)(\b\s*)$/, "$& <span class=\"text-danger\">(Running...)</span>");
-                        // $(label).html(result);
                         label.addClass("text-danger");
                         $('#switch-'+switchID+'-spinner').removeClass('hidden');
                     }
                     if (data.output.indexOf("stopped") > -1) {
-                        // label.find("span").remove();
                         label.removeClass("text-danger");
                         $('#switch-'+switchID+'-spinner').addClass('hidden');
                     }
@@ -255,9 +250,6 @@ function updateImage(switchID) {
     });
 }
 
-// var displayImage = function (base64Data, elementID) {
-//     $('img#switch-'+elementID).attr("src", "data:image/jpg;base64," + base64Data);
-// };
 
 function displayImage(base64Data, elementID) {
     var imageObj = MyPi.feed['switch-'+elementID].image;
