@@ -61,7 +61,7 @@ start() {
     fi
     echo_log "Starting $PROG.sh on $CAMERA"
     command -v $path_to_ffmpeg >/dev/null 2>&1 || { echo_log >&2 "I require ffmpeg but it's not installed.  Aborting."; exit 1; }
-    echo_log "$path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i \"http://$ip/videostream.cgi?user=$username&pwd=$password\" -i \"http://$ip/videostream.asf?user=$username&pwd=$password\" -map 0:v -map 1:a -acodec copy -vcodec copy -f segment -segment_time $cam_record_length -reset_timestamps 1 \"$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv\" > /dev/null 2>&1 &"
+    echo_log "$path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i \"http://$ip/videostream.cgi?user=XXXXXX&pwd=XXXXXX\" -i \"http://$ip/videostream.asf?user=XXXXXX&pwd=XXXXXX\" -map 0:v -map 1:a -acodec copy -vcodec copy -f segment -segment_time $cam_record_length -reset_timestamps 1 \"$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv\" > /dev/null 2>&1 &"
 
     # echo -n "Starting $PROG.sh on camera: $CAMERA"
     $path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i "http://$ip/videostream.cgi?user=$username&pwd=$password" \

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 import logging
 import logging.config
 import subprocess
@@ -14,6 +15,17 @@ IS_ERROR = None
 
 logging.config.fileConfig(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'logging.conf')))
 log = logging.getLogger(__name__)
+
+
+def clean_creds(text):
+    wget_regex = '([&|\?]user\=)(?:[^\&]+)(&pwd\=)(?:[^\&""]+)'
+    gv_regex = '(-e)\s*(?:[^\s]+)\s*(-p)\s*(?:[^\s]+)'
+    if re.match(r'.*' + wget_regex + r'.*', text):
+        return re.sub(r'' + wget_regex + r'', r'\1XXXXXX\2XXXXXX', text)
+    if re.match(r'.*' + gv_regex + r'.*', text):
+        return re.sub(r'' + gv_regex + r'', r'\1 XXXXXX \2 XXXXXX', text)
+    else:
+        return text
 
 
 def remove_file(filename):
@@ -189,7 +201,7 @@ def sendGVSMS(gv_user, gv_passwd, sms_num, sms_msg):
         sms_num,
         sms_msg
     ]
-    log.debug(' '.join(command))
+    log.debug(clean_creds(' '.join(command)))
     p = subprocess.Popen(command, stdout=subprocess.PIPE)
     stdout, stderr = p.communicate()
     log.debug('Command Output: ' + stdout.strip(' \t\n\r'))

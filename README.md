@@ -7,7 +7,7 @@ Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-rasp
 
 ![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-1.png)
 
-Ability to schedule jobs. 
+Ability to schedule jobs.
 
 ![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-2.png)
 
@@ -146,7 +146,7 @@ Requirements
     vi) Set "temp_threshold_alerts" to 1 and put a value for degrees celsius in "temp_threshold_cel" if you want to be notified via Email/GV if temperature exceeds this value.
 
 
-7) If you want to get Google Voice SMS working (and provided you have a GV account) to the following:
+7) If you want to get Google Voice SMS working (and provided you have a GV account) do the following:
 
     i) PY Google Voice Installation
         cd /root

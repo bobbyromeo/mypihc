@@ -20,7 +20,7 @@ import glob
 import shlex
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'common')))
-from utils import change_file_owner, sendGVSMS, sendEmail, CONFIG, IS_ERROR, create_savedir, remove_file
+from utils import change_file_owner, sendGVSMS, sendEmail, CONFIG, IS_ERROR, create_savedir, remove_file, clean_creds
 
 # global variables
 already_armed = 0
@@ -77,7 +77,8 @@ def armCamera(flag):
         CONFIG['path_to_wget'], '-q', '-O', '-',
         'http://' + CONFIG['cam_ip'] + '/set_alarm.cgi?motion_armed=1&motion_sensitivity=' + CONFIG['cam_motion_sensitivity'] + '&mail=' + str(flag) + '&user=' + CONFIG['cam_user'] + '&pwd=' + CONFIG['cam_password']
     ]
-    log.debug(' '.join(command))
+
+    log.debug(clean_creds(' '.join(command)))
     p = subprocess.Popen(command, stdout=subprocess.PIPE)
     stdout, stderr = p.communicate()
     log.debug('Command Output: ' + stdout.strip(' \t\n\r'))
@@ -107,7 +108,7 @@ def startRecord(arg, stop_event):
             + CONFIG['cam_user'] + '&pwd=' + CONFIG['cam_password'] + '" -i "http://' + CONFIG['cam_ip'] + '/videostream.asf?user=' + CONFIG['cam_user'] \
             + '&pwd=' + CONFIG['cam_password'] + '" -map 0:v -map 1:a -acodec copy -vcodec copy '  \
             + os.path.join(target_dir, CONFIG['cam_prefix_file_name'] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv')
-        log.debug(shlex.split(cmd))
+        log.debug(clean_creds(cmd))
 
         p = subprocess.Popen(
             shlex.split(cmd),
