@@ -3,7 +3,13 @@ Power Control
 
 A web interface to remotely control/schedule 433MHz RF power switches, a DHT22 temperature and humdity sensor, a PIR sensor alarm (for a makeshift home security system), and a mechanism to record from foscam IP cameras, all through a Raspberry Pi. At the very least it needs a Raspberry Pi to function ;-) and some basic programming skills (Bash, PHP, HTML, Python, JS) if you wish to alter any part of the code.
 
+Blog Post
+==================
+
 Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-raspberry-pi-foscam-sensors/) for instructions and for a more in depth explanation of the project.
+
+Screenshots
+==================
 
 ![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-1.png)
 
@@ -87,7 +93,7 @@ Modules
 
 1) If you want to use a 433Mhz TX/RX RF module (OPTIONAL)
 
-A 433Mhz TX/RX module will permit you to control wireless remote control electrical outlets via this interface. The more difficult aspects of this setup is capturing the specific codes for your particalar mode. Please see my blog post (above) for a way to capture these codes.
+A 433Mhz TX/RX module will permit you to control wireless remote control electrical outlets via this interface. The more difficult aspects of this setup is capturing the specific codes for your particular mode. Please see my blog post (above) for a way to capture these codes.
 
 (Cheap transmitter/receiver: http://www.ebay.ca/itm/5pcs-433Mhz-RF-transmitter-and-receiver-kit-for-Arduino-/251673838721?pt=LH_DefaultDomain_0&hash=item3a98ee0481)
 
