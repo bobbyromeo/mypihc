@@ -25,7 +25,7 @@ The code may still prove useful to you for other features, i.e. RF module, PIR s
 
 So assuming you have Foscam cameras, do the following:
 
-    i) Follow the Basic Setup portion (below)
+    i) Follow the Basic Setup portion (below) so you may at the very least serve the project
 
     ii) Configure your cameras in the appropriate sections [camera1], [camera2]
 
