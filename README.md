@@ -3,7 +3,7 @@ Power Control
 
 A web interface to remotely control/schedule 433MHz power switches, a PIR sensor alarm, and record from foscam IP cameras all through a Raspberry Pi. At the very least it needs a Raspberry Pi to function ;-) and some basic programming skills (Bash, PHP, HTML, Python, JS) if you wish to alter any part of the code.
 
-Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-raspberry-pi-foscam-sensors/) for instructions and screenshots.
+Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-raspberry-pi-foscam-sensors/) for instructions and for a more in depth explanation of the project.
 
 ![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-1.png)
 
@@ -11,23 +11,28 @@ Ability to schedule jobs.
 
 ![alt tag](https://raw.githubusercontent.com/bobbyromeo/mypihc/master/img/MyPi-Home-Control-Interface-2.png)
 
-Configuration
+Configuration Overview
 ==================
-All configuration is handle in the file: config.ini
+All configuration is handle in the file: config.ini and assuming you have Foscam cameras do the following:
 
-    i) Configure your cameras in the appropriate sections [camera1], [camera2]
+    i) Follow the Basic Setup
 
-    ii) Enable the camera module "use_camera_module=" in section [config]. Switches d, e handle
+    ii) Configure your cameras in the appropriate sections [camera1], [camera2]
+
+    iii) Enable the camera module "use_camera_module=" in section [config]. Switches d, e handle
         the recording for the cameras
 
-    iii) Configure a save directory in the [config] section, "save_to_dir="
+    iv) Configure a save directory in the [config] section, "save_to_dir="
 
-    iii) Alter the crontab so user www-data can modify crontabs under the user pi, also make sure the pi can use sudo w/o a password
+    v) Alter the crontab so user www-data can modify crontabs under the user pi, also make sure the pi can use sudo w/o a password
 
     www-data ALL=(pi) NOPASSWD: /usr/bin/crontab
     pi ALL=(ALL) NOPASSWD:ALL
 
-    iv) Install ffmpeg (See below)
+    vi) Install ffmpeg (See below)
+
+    vii) Decide what extra modules you would to have working. Many of the extended modules require cheap hardware to get going. Please see my blog post for more information.
+
 
 
 Basic Setup
