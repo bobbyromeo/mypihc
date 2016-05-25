@@ -1,4 +1,4 @@
-Power Control
+MyPi Home Control
 ==================
 
 A web interface to remotely control/schedule 433MHz RF power switches, a DHT22 temperature and humdity sensor, a PIR sensor alarm (for a makeshift home security system), and a mechanism to record from foscam IP cameras, all through a Raspberry Pi. At the very least it needs a Raspberry Pi to function ;-) and some basic programming skills (Bash, PHP, HTML, Python, JS) if you wish to alter any part of the code. This project was meant as a quick-and-dirty solution for a need I had. Consequently, the code may not be the most "cleanest" nor the most efficient. Suggestions / comments are always welcome. If this code in any way, shape, or form causes your living quarters to disintegrate and/or melt to the ground, I shall not be held accountable ;-) Kidding...
