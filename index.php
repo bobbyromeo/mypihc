@@ -68,6 +68,17 @@
     .btn-group {
         display: flex;
     }
+
+    .noselect {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none;   /* Chrome/Safari/Opera */
+        -khtml-user-select: none;    /* Konqueror */
+        -moz-user-select: none;      /* Firefox */
+        -ms-user-select: none;       /* Internet Explorer/Edge */
+        user-select: none;           /* Non-prefixed version, currently
+                                      not supported by any browser */
+    }
+
     </style>
 </head>
 
@@ -256,7 +267,7 @@
                         <div class="fix">
         <!--                <img class="img-responsive" id="switch-d" alt="" src="img/getting_feed.jpg" name="<?php echo $ini_array['camera1']['name'] ?>" >
          -->                <canvas class="img-responsive" id="switch-d" width="640" height="480"></canvas>
-                            <div class="desc">
+                            <div class="desc noselect">
                                 <p class="desc_content"><?php echo $ini_array['camera1']['name'].' ('.$ini_array['camera1']['ip'].')'?></p>
                             </div>
                         </div>
@@ -268,7 +279,7 @@
                         <div class="fix">
     <!--                    <img class="img-responsive" id="switch-e" alt="" src="img/getting_feed.jpg" name="<?php echo $ini_array['camera2']['name'] ?>" >
      -->                    <canvas class="img-responsive" id="switch-e" width="640" height="480"></canvas>
-                            <div class="desc">
+                            <div class="desc noselect">
                             <p class="desc_content"><?php echo $ini_array['camera2']['name'].' ('.$ini_array['camera2']['ip'].')'?></p>
                             </div>
                         </div>

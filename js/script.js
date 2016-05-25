@@ -25,12 +25,10 @@ MyPi.feed['switch-e'].image.onload = function () {
 
 $(document).ready(function() {
     $.ajaxSetup({ cache: false });
-
     enableChooser();
     refreshCronTable(addEvents);
     updateTime();
     updateUptime();
-
     if ($(':hidden#use_dht22_module').val()) updateDHT22();
     if ($(':hidden#use_camera_module').val()) {
         checkSwitchStatus('d');
@@ -38,6 +36,8 @@ $(document).ready(function() {
         updateImage('d');
         updateImage('e');
     }
+    canvasLinks('d');
+    canvasLinks('e');
     if ($(':hidden#use_pir_module').val()) checkSwitchStatus('c');
 
     // Buttons
@@ -334,3 +334,151 @@ function refreshCronTable(callback) {
             alert( "List cron table failed!" );
         });
 }
+
+function canvasLinks(switchID) {
+    // Get canvas
+    var canvas = document.getElementById("switch-"+switchID);
+    // 2d context
+    var ctx = canvas.getContext("2d");
+    // ctx.translate(0.5, 0.5); // * Move the canvas by 0.5px to fix blurring
+
+    // Block border
+    // ctx.strokeStyle = "#5F7FA2";
+    // ctx.strokeRect(50, 50, 185, 90);
+
+    // Photo
+    // var img = new Image();
+    // img.src = "http://...";
+    // img.onload = function(){
+    //     ctx.drawImage(img, 59.5, 59.5); // Use -0.5px on photos to prevent blurring caused by * fix
+    // }
+
+    // Text
+    // ctx.fillStyle = "#000000";
+    // ctx.font = "15px Tahoma";
+    // ctx.textBaseline = "top";
+    // ctx.fillText("Username", 95, 65);
+
+    // ***** Magic starts here *****
+    var timeoutId = 0;
+
+    // Links
+    var Links = new Array(); // Links information
+    var hoverLink = ""; // Href of the link which cursor points at
+    ctx.fillStyle = "#000000"; // Default blue link color
+    ctx.font = "25px Courier New"; // Monospace font for links
+    ctx.textBaseline = "top"; // Makes left top point a start point for rendering text
+
+    // Draw the link
+    function drawLink(x,y,href,title){
+        var linkTitle = title,
+            linkX = x,
+            linkY = y,
+            linkWidth = ctx.measureText(linkTitle).width,
+            linkHeight = parseInt(ctx.font); // Get lineheight out of fontsize
+
+        // Draw the link
+        // ctx.fillText(linkTitle, linkX, linkY);
+
+        // Underline the link (you can delete this block)
+        ctx.beginPath();
+        // ctx.moveTo(linkX, linkY + linkHeight);
+        // ctx.lineTo(linkX + linkWidth, linkY + linkHeight);
+        // ctx.lineWidth = 1;
+        // ctx.strokeStyle = "#0000ff";
+        // ctx.stroke();
+
+        // Add mouse listeners
+        canvas.addEventListener("mousemove", on_mousemove, false);
+        //canvas.addEventListener("click", on_click, false);
+        canvas.addEventListener("mousedown", on_click, false);
+        canvas.addEventListener("mouseup", on_mouseup, false);
+        canvas.addEventListener("mouseleave", on_mouseup, false);
+
+        // Add link params to array
+        Links.push(x + ";" + y + ";" + linkWidth + ";" + linkHeight + ";" + href);
+    }
+
+    var on_mouseup = function(e){
+        clearInterval(timeoutId);
+    }
+
+    // Link hover
+    function on_mousemove (ev) {
+        var x, y;
+
+        // Get the mouse position relative to the canvas element
+        if (ev.layerX || ev.layerX == 0) { // For Firefox
+            x = ev.layerX;
+            y = ev.layerY;
+        }
+
+        // Link hover
+        for (var i = Links.length - 1; i >= 0; i--) {
+            var params = new Array();
+
+            // Get link params back from array
+            params = Links[i].split(";");
+
+            var linkX = parseInt(params[0]),
+                linkY = parseInt(params[1]),
+                linkWidth = parseInt(params[2]),
+                linkHeight = parseInt(params[3]),
+                linkHref = params[4];
+
+            // Check if cursor is in the link area
+            if (x >= linkX && x <= (linkX + linkWidth) && y >= linkY && y <= (linkY + linkHeight)){
+                document.body.style.cursor = "pointer";
+                hoverLink = linkHref;
+                break;
+            }
+            else {
+                document.body.style.cursor = "";
+                hoverLink = "";
+            }
+        };
+    }
+
+    // Link click
+    function on_click(e) {
+        if (hoverLink){
+            //window.open(hoverLink); // Use this to open in new tab
+            //window.location = hoverLink; // Use this to open in current window
+            timeoutId = setInterval(function() {
+                $.ajax({
+                    url: 'site_manager.php',
+                    type: 'GET',
+                    timeout: 2000,
+                    data: { action: "move", "switch": switchID, direction: hoverLink },
+                });
+            }, 250);
+        }
+    }
+
+    // Ready for use ! You are welcome !
+    drawLink(1,$(canvas).height()/2-10,"left","LEFTY");
+    drawLink($(canvas).width()-50,$(canvas).height()/2-10,"right","RIGHT");
+    drawLink($(canvas).width()/2-20,0,"up","TOPPY");
+    drawLink($(canvas).width()/2-20,$(canvas).height()-20,"down","DOWNY");
+}
+
+var waitForFinalEvent = (function () {
+    var timers = {};
+    return function (callback, ms, uniqueId) {
+        if (!uniqueId) {
+            uniqueId = "Don't call this twice without a uniqueId";
+        }
+        if (timers[uniqueId]) {
+            clearTimeout (timers[uniqueId]);
+        }
+        timers[uniqueId] = setTimeout(callback, ms);
+    };
+})();
+
+$(window).resize(function () {
+    waitForFinalEvent(function(){
+        canvasLinks('d');
+        canvasLinks('e');
+      //...
+    }, 500, "some unique string");
+});

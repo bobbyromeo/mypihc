@@ -125,6 +125,43 @@ if ($_GET) {
          }
     }
 
+    if (isset($_GET['action']) && $_GET['action'] == "move") {
+        if (isset($_GET['switch']) && !empty($_GET['switch'])) {
+            $switch = $_GET['switch'];
+            if (isset($_GET['direction']) && !empty($_GET['direction'])) {
+                $direction = $_GET['direction'];
+                switch ($direction) {
+                    case "right":
+                        $command = "4";
+                        break;
+                    case "left":
+                        $command = "6";
+                        break;
+                    case "down":
+                        $command = "2";
+                        break;
+                    case "up":
+                        $command = "0";
+                        break;
+                    default:
+                        $command = "1";
+                }
+
+                try {
+                    $camera = $ini_array['switch-'.$switch]['use_as_camera'];
+                    $url = 'http://'.$ini_array[$camera]['ip'].'/decoder_control.cgi?command='.$command.'&onestep=1&user='.$ini_array[$camera]['username'].'&pwd='.$ini_array[$camera]['password'];
+                    $response = file_get_contents($url);
+                    $result = true;
+                    $output = $response;
+                } catch (Exception $e) {
+                    $output = 'Caught exception: ' . $e->getMessage();
+                    error_log($output);
+                    $result = false;
+                }
+            }
+        }
+    }
+
     $data = array( 'output' => $output, 'result' => $result);
     header('Content-Type: application/json');
     echo json_encode($data);
