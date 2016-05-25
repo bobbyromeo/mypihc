@@ -60,8 +60,9 @@ def getSettings():
     CONFIG['gv_user'] = config.get('gv', 'gv_user')
     CONFIG['gv_passwd'] = config.get('gv', 'gv_passwd')
     CONFIG['sms_num'] = config.get('gv', 'sms_num')
-    CONFIG['temp_threshold_cel'] = config.get('dht22', 'temp_threshold_cel')
+    CONFIG['temp_threshold'] = config.get('dht22', 'temp_threshold')
     CONFIG['temp_threshold_alerts'] = config.get('dht22', 'temp_threshold_alerts')
+    CONFIG['temp_in_fahrenheit'] = config.get('dht22', 'temp_in_fahrenheit')
 
     CONFIG['use_pir_module'] = config.get('config', 'use_pir_module')
     CONFIG['use_camera_module'] = config.get('config', 'use_camera_module')

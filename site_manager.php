@@ -72,7 +72,7 @@ if ($_GET) {
             if (!empty($output)) {
                 preg_match_all('/\[[^\[\]]*\]/', $output, $matches);
                 $arr = preg_replace("/[^0-9,.]/", "", explode(',', trim($matches[0][0])));
-                $output = array('temperature' => $arr[0], 'humidity' => $arr[1]);
+                $output = array('temperature' => $arr[0], 'humidity' => $arr[1], 'unit' => ($ini_array['dht22']['temp_in_fahrenheit']) ? 'fahrenheit' : 'celsius');
             }
         } else {
             $output = "DHT module is disabled";

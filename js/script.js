@@ -168,8 +168,7 @@ function updateDHT22() {
         data: { action: "dht22" },
     }).done(function(data) {
         if (data.result) {
-            $("#dht22").html(data.output.temperature+'&#8451; / '
-                + data.output.humidity + '%');
+            $("#dht22").html(data.output.temperature + (data.output.unit == 'fahrenheit' ? '&#8457; / ' : '&#8451; / ') + data.output.humidity + '%');
             $('#ajaxSpinnerContainer').hide();
             setTimeout(function () {
                 updateDHT22();

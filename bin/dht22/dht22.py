@@ -22,13 +22,25 @@ def main():
         log.error('Adafruit_DHT library not found!')
         sys.exit(1)
 
-    h, t = dht.read_retry(dht.DHT22, 4)
+    try:
+        h, t = dht.read_retry(dht.DHT22, 4)
+    except Exception, e:
+        log.error("Unable to retrieve temperature/humidity data from DHT22 sensor: %s" % str(e))
+        sys.exit(1)
+
+    if not all([h, t]):
+        log.error("Unable to retrieve temperature/humidity data from DHT22 sensor")
+        sys.exit(1)
+
+    if CONFIG['temp_in_fahrenheit']:
+        t = (t * (9.0 / 5.0)) + 32
+
     sys.stdout.write("[%0.1f,%0.1f]" % (t, h))
+
     log.info("Temperature/humidity reading: %0.1f, %0.1f" % (t, h))
+    log.info("Checking temperature over threshold: %.1f > %.1f = %s" % (t, Decimal(CONFIG['temp_threshold']), t > Decimal(CONFIG['temp_threshold'])))
 
-    log.info("Checking temperature over threshold: %.1f > %.1f = %s" % (t, Decimal(CONFIG['temp_threshold_cel']), t > Decimal(CONFIG['temp_threshold_cel'])))
-
-    if (t > Decimal(CONFIG['temp_threshold_cel']) and CONFIG['temp_threshold_alerts']):
+    if (t > Decimal(CONFIG['temp_threshold']) and CONFIG['temp_threshold_alerts']):
         try:
             log.info("Attempting to send GV SMS...")
             sendGVSMS(CONFIG['gv_user'], CONFIG['gv_passwd'], CONFIG['sms_num'], 'Temperature reading of: %0.1f degrees is over threshold!' % t)
