@@ -1,7 +1,7 @@
 Power Control
 ==================
 
-A web interface to remotely control/schedule 433MHz power switches, a PIR sensor alarm, and record from foscam IP cameras all through a Raspberry Pi. At the very least it needs a Raspberry Pi to function ;-) and some basic programming skills (Bash, PHP, HTML, Python, JS) if you wish to alter any part of the code.
+A web interface to remotely control/schedule 433MHz RF power switches, a DHT22 temperature and humdity sensor, a PIR sensor alarm (for a makeshift home security system), and a mechanism to record from foscam IP cameras, all through a Raspberry Pi. At the very least it needs a Raspberry Pi to function ;-) and some basic programming skills (Bash, PHP, HTML, Python, JS) if you wish to alter any part of the code.
 
 Check [this article](http://bobbyromeo.com/wp/diy-alarm-monitoring-system-w-raspberry-pi-foscam-sensors/) for instructions and for a more in depth explanation of the project.
 
@@ -13,9 +13,13 @@ Ability to schedule jobs.
 
 Configuration Overview
 ==================
-All configuration is handle in the file: config.ini and assuming you have Foscam cameras do the following:
+All configuration is handle in the file: config.ini. I've created this code while using two Foscams cameras as they have a relatively simple API for things like snapshots and basic pan/tilt. Other cameras with different APIs may still work, however modification would need to be done. If you have Foscam cameras you shouldn't have any problems.
 
-    i) Follow the Basic Setup
+The code may still prove useful to you for other features, i.e. RF module, PIR sensor, or Temp./humidity sensor.
+
+So assuming you have Foscam cameras, do the following:
+
+    i) Follow the Basic Setup portion (below)
 
     ii) Configure your cameras in the appropriate sections [camera1], [camera2]
 
@@ -81,7 +85,7 @@ Basic Setup
 Modules
 ==================
 
-1) If you want to use a 433Mhz TX/RX module (OPTIONAL)
+1) If you want to use a 433Mhz TX/RX RF module (OPTIONAL)
 
 A 433Mhz TX/RX module will permit you to control wireless remote control electrical outlets via this interface. The more difficult aspects of this setup is capturing the specific codes for your particalar mode. Please see my blog post (above) for a way to capture these codes.
 
@@ -107,7 +111,7 @@ A 433Mhz TX/RX module will permit you to control wireless remote control electri
 
 2) If you want to use a PIR Sensor (OPTIONAL)
 
-A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the PIR Alarm is armed for SMS or Email. More so, when tripped, a video will begin to be recorded directly to your save to path. Also, you can arm a specific Foscam camera and use it's built-in Email notifications to send you images via Email. Please see my blog.
+A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the PIR Alarm is armed for SMS or Email. More so, when tripped, a video will begin to be recorded directly to your save to path. Also, you can arm a specific Foscam camera and use it's built-in email notifications to send you images via email. Please see my blog.
 
     i) PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
 
@@ -126,9 +130,9 @@ A PIR Sensor, strategically place in your home, would permit you to be notified 
 
 3) If you want to use the DHT22 temperature and humdity sensor (OPTIONAL)
 
-A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or Email if the temperature exceeds a threshold value set in the configuration file.
+A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or email if the temperature exceeds a threshold value set in the configuration file.
 
-    (Watch for more info: https://www.youtube.com/watch?v=IHTnU1T8ETk)
+(Watch for more info: https://www.youtube.com/watch?v=IHTnU1T8ETk)
 
     i) Pinout on the DHT22
     PIN 1 --> VCC,
