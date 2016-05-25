@@ -117,7 +117,7 @@ A 433Mhz TX/RX module will permit you to control wireless remote control electri
 
 2) If you want to use a PIR Sensor (OPTIONAL)
 
-A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the PIR Alarm is armed for SMS or Email. More so, when tripped, a video will begin to be recorded directly to your save to path. Also, you can arm a specific Foscam camera and use it's built-in email notifications to send you images via email. Please see my blog.
+A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the "PIR Alarm" is armed, either for SMS or Email. More so, when tripped, a video will begin to record directly to your save to path. Also, you can arm a Foscam camera and use it's built-in email notifications to send you images via email, provided you set that up with it's own interface. Please see my blog for more info.
 
     i) PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
 
@@ -136,7 +136,7 @@ A PIR Sensor, strategically place in your home, would permit you to be notified 
 
 3) If you want to use the DHT22 temperature and humdity sensor (OPTIONAL)
 
-A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or email if the temperature exceeds a threshold value set in the configuration file.
+A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or email if the temperature exceeds a threshold value set in the configuration file, see the [dht22] section.
 
 (Watch for more info: https://www.youtube.com/watch?v=IHTnU1T8ETk)
 
