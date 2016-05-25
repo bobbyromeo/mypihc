@@ -83,9 +83,9 @@ Modules
 
 1) If you want to use a 433Mhz TX/RX module (OPTIONAL)
 
-    A 433Mhz TX/RX module will permit you to control wireless remote control electrical outlets via this interface. The more difficult aspects of this setup is capturing the specific codes for your particalar mode. Please see my blog post (above) for a way to capture these codes.
+A 433Mhz TX/RX module will permit you to control wireless remote control electrical outlets via this interface. The more difficult aspects of this setup is capturing the specific codes for your particalar mode. Please see my blog post (above) for a way to capture these codes.
 
-    (Cheap transmitter/receiver: http://www.ebay.ca/itm/5pcs-433Mhz-RF-transmitter-and-receiver-kit-for-Arduino-/251673838721?pt=LH_DefaultDomain_0&hash=item3a98ee0481)
+(Cheap transmitter/receiver: http://www.ebay.ca/itm/5pcs-433Mhz-RF-transmitter-and-receiver-kit-for-Arduino-/251673838721?pt=LH_DefaultDomain_0&hash=item3a98ee0481)
 
     i) Follow the instructions to install the wiringpi library. After that you can compile the example programs by executing make. Install WiringPi from https://projects.drogon.net/raspberry-pi/wiringpi/download-and-install//
 
@@ -107,7 +107,7 @@ Modules
 
 2) If you want to use a PIR Sensor (OPTIONAL)
 
-    A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the PIR Alarm is armed for SMS or Email. More so, when tripped, a video will begin to be recorded directly to your save to path. Also, you can arm a specific Foscam camera and use it's built-in Email notifications to send you images via Email. Please see my blog.
+A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the PIR Alarm is armed for SMS or Email. More so, when tripped, a video will begin to be recorded directly to your save to path. Also, you can arm a specific Foscam camera and use it's built-in Email notifications to send you images via Email. Please see my blog.
 
     i) PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
 
@@ -126,7 +126,7 @@ Modules
 
 3) If you want to use the DHT22 temperature and humdity sensor (OPTIONAL)
 
-    A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or Email if the temperature exceeds a threshold value set in the configuration file.
+A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or Email if the temperature exceeds a threshold value set in the configuration file.
 
     (Watch for more info: https://www.youtube.com/watch?v=IHTnU1T8ETk)
 
