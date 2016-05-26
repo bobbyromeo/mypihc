@@ -19,7 +19,7 @@ Ability to schedule jobs.
 
 Configuration Overview
 ==================
-All configuration is handle in the file: config.ini. I've created this code while using two Foscams cameras as they have a relatively simple API for things like snapshots and basic pan/tilt. Other cameras with different APIs may still work, however modification would need to be done. If you have Foscam cameras you shouldn't have any problems.
+All configuration is handle in the file: *config.ini*. I've created this code while using two Foscams cameras as they have a relatively simple API for things like snapshots and basic pan/tilt. Other cameras with different APIs may still work, however modification would need to be done. If you have Foscam cameras you shouldn't have any problems.
 
 The code may still prove useful to you for other features, i.e. RF module, PIR sensor, Orvibo WiFi outlets, or Temp./humidity sensor.
 
@@ -91,7 +91,10 @@ Basic Setup
 Modules
 ==================
 
-1) If you want to use a 433Mhz TX/RX RF module (OPTIONAL)
+433Mhz TX/RX RF module
+-------------------
+
+If you want to use a 433Mhz TX/RX RF module (OPTIONAL)
 
 A 433Mhz TX/RX module will permit you to control wireless remote control electrical outlets via this interface. The more difficult aspects of this setup is capturing the specific codes for your particular mode. Please see my blog post (above) for a way to capture these codes.
 
@@ -118,7 +121,10 @@ A 433Mhz TX/RX module will permit you to control wireless remote control electri
     viii) For the 433mhz emitter if using it
         www-data ALL=NOPASSWD: {PATH_TO_WWW}/mypihc/bin/codesend/codesend.sh
 
-2) If you want to use a PIR Sensor (OPTIONAL)
+PIR Sensor
+-------------------
+
+If you want to use a PIR Sensor (OPTIONAL)
 
 A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the "PIR Alarm" is armed, either for SMS or Email. More so, when tripped, a video will begin to record directly to your save to path. Also, you can arm a Foscam camera and use it's built-in email notifications to send you images via email, provided you set that up with it's own interface. Please see my blog for more info.
 
@@ -137,7 +143,9 @@ A PIR Sensor, strategically place in your home, would permit you to be notified 
     iv) Grant sudo access
     www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/pir/pir.sh
 
-3) If you want to use the DHT22 temperature and humdity sensor (OPTIONAL)
+DHT22 Temperature and Humdity Sensor
+-------------------
+If you want to use the DHT22 temperature and humdity sensor (OPTIONAL)
 
 A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or email if the temperature exceeds a threshold value set in the configuration file, see the [dht22] section.
 
@@ -179,7 +187,10 @@ A DHT22 temperature and humdity sensor, when connected to you Pi, will permit yo
 
     vii) Set "temp_threshold_alerts" to 1 and put a value for degrees celsius in "temp_threshold_cel" if you want to be notified via Email/GV if temperature exceeds this value.
 
-4) If you want to use the Orvibo S20 WiFi Smart Remote Controlled House Socket  (OPTIONAL)
+Orvibo S20 WiFi Socket
+-------------------
+
+If you want to use the Orvibo S20 WiFi Smart Remote Controlled House Socket  (OPTIONAL)
 
 Product description: http://www.gearbest.com/diy-parts-and-tools/pp_133571.html
 
@@ -197,8 +208,10 @@ At the very least you will need the MAC address and IP address of the device.
     iii) Grant sudo access
     www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/orvibo/s20command.sh
 
+Google Voice SMS
+-------------------
 
-5) If you want to get Google Voice SMS working instead of using your cellular's SMS email gateway (provided you have a GV account), do the following (OPTIONAL):
+If you want to get Google Voice SMS working instead of using your cellular's SMS email gateway (provided you have a GV account), do the following (OPTIONAL):
 
     i) PY Google Voice Installation
         cd /root
