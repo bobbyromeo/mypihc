@@ -1,7 +1,9 @@
 MyPi Home Control
 ==================
 
-A web interface to remotely control/schedule 433MHz RF power switches, a DHT22 temperature and humdity sensor, a PIR sensor alarm (for a makeshift home security system), Orvibo S20 WiFi remote outlets, and a mechanism to record from foscam IP cameras, all through a Raspberry Pi. At the very least it needs a Raspberry Pi to function ;-) and some basic programming skills (Bash, PHP, HTML, Python, JS) if you wish to alter any part of the code. This project was meant as a quick-and-dirty solution for a need I had. Consequently, the code may not be the most "cleanest" nor the most efficient. Suggestions / comments are always welcome. If this code in any way, shape, or form causes your living quarters to disintegrate and/or melt to the ground, I shall not be held accountable ;-) Kidding...
+A web interface to remotely control/schedule 433MHz RF power switches, a DHT22 temperature and humdity sensor, a PIR sensor alarm (for a makeshift home security system), Orvibo S20 WiFi remote outlets, and a mechanism to record from foscam IP cameras, all through a Raspberry Pi. At the very least it needs a Raspberry Pi to function ;-) and some basic programming skills (Bash, PHP, HTML, Python, JS) if you wish to alter any part of the code.
+
+This project was meant as a quick-and-dirty solution for a need I had. Consequently, the code may not be the most "cleanest" nor the most efficient. Suggestions / comments are always welcome. If this code in any way, shape, or form causes your living quarters to disintegrate and/or melt to the ground, I shall not be held accountable ;-) Kidding...
 
 Blog Post
 ==================
@@ -19,7 +21,9 @@ Ability to schedule jobs.
 
 Configuration Overview
 ==================
-All configuration is handle in the file: *config.ini*. I've created this code while using two Foscams cameras as they have a relatively simple API for things like snapshots and basic pan/tilt. Other cameras with different APIs may still work, however modification would need to be done. If you have Foscam cameras you shouldn't have any problems.
+All configuration is handle in the file: *config.ini*. To enable a setting in the configuration file, use *1* e.g.: "setting = 1".
+
+I've created this code while using two Foscams cameras as they have a relatively simple API for things like snapshots and basic pan/tilt. Other cameras with different APIs may still work, however modification would need to be done. If you have Foscam cameras you shouldn't have any problems.
 
 The code may still prove useful to you for other features, i.e. RF module, PIR sensor, Orvibo WiFi outlets, or Temp./humidity sensor.
 
@@ -30,7 +34,7 @@ So assuming you have Foscam cameras, do the following:
     ii) Configure your cameras in the appropriate sections [camera1], [camera2]
 
     iii) Enable the camera module "use_camera_module=" in section [config]. Switches q, r handle
-        the recording for the cameras
+        the recording for the cameras and enable "enable=" for each to display switch on interface.
 
     iv) Configure a save directory in the [config] section, "save_to_dir="
 
@@ -91,10 +95,8 @@ Basic Setup
 Modules
 ==================
 
-433Mhz TX/RX RF module
+433Mhz TX/RX RF module (OPTIONAL)
 -------------------
-
-If you want to use a 433Mhz TX/RX RF module (OPTIONAL)
 
 A 433Mhz TX/RX module will permit you to control wireless remote control electrical outlets via this interface. The more difficult aspects of this setup is capturing the specific codes for your particular mode. Please see my blog post (above) for a way to capture these codes.
 
@@ -116,21 +118,19 @@ A 433Mhz TX/RX module will permit you to control wireless remote control electri
         turn_on = /bin/codesend/codesend.sh <code>
         turn_off = /bin/codesend/codesend.sh <code>
 
-    vii) Enable the module "use_433mhz_module=" in section [config]
+    vii) Enable the module "use_433mhz_module=" in section [config] and enable "enable=" for switches a,b to display switch on interface.
 
     viii) For the 433mhz emitter if using it
         www-data ALL=NOPASSWD: {PATH_TO_WWW}/mypihc/bin/codesend/codesend.sh
 
-PIR Sensor
+PIR Sensor (OPTIONAL)
 -------------------
-
-If you want to use a PIR Sensor (OPTIONAL)
 
 A PIR Sensor, strategically place in your home, would permit you to be notified in the event there is movement when the "PIR Alarm" is armed, either for SMS or Email. More so, when tripped, a video will begin to record directly to your save to path. Also, you can arm a Foscam camera and use it's built-in email notifications to send you images via email, provided you set that up with it's own interface. Please see my blog for more info.
 
     i) PIR setup instructions http://www.raspberrypi-spy.co.uk/2013/01/cheap-pir-sensors-and-the-raspberry-pi-part-1/
 
-    ii) Enable the module "use_pir_module=" in section [config]. Switch p handles this.
+    ii) Enable the module "use_pir_module=" in section [config] and enable "enable=" for switch p to display switch on interface.
 
     iii) Configure the options in the [pir] section
 
@@ -143,9 +143,8 @@ A PIR Sensor, strategically place in your home, would permit you to be notified 
     iv) Grant sudo access
     www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/pir/pir.sh
 
-DHT22 Temperature and Humdity Sensor
+DHT22 Temperature and Humdity Sensor (OPTIONAL)
 -------------------
-If you want to use the DHT22 temperature and humdity sensor (OPTIONAL)
 
 A DHT22 temperature and humdity sensor, when connected to you Pi, will permit you to capture temperature/humidity readings and send an SMS or email if the temperature exceeds a threshold value set in the configuration file, see the [dht22] section.
 
@@ -175,7 +174,7 @@ A DHT22 temperature and humdity sensor, when connected to you Pi, will permit yo
         cd Adafruit_Python_DHT
         sudo python setup.py install
 
-    iv) Enable the module "use_dht22_module=" in section [config]
+    iv) Enable the module "use_dht22_module=" in section [config] and enable "enable=" for switch s to display switch on interface.
 
     v) Verify the switch s section (turn_off is empty)
 
@@ -187,10 +186,8 @@ A DHT22 temperature and humdity sensor, when connected to you Pi, will permit yo
 
     vii) Set "temp_threshold_alerts" to 1 and put a value for degrees celsius in "temp_threshold_cel" if you want to be notified via Email/GV if temperature exceeds this value.
 
-Orvibo S20 WiFi Socket
+Orvibo S20 WiFi Socket (OPTIONAL)
 -------------------
-
-If you want to use the Orvibo S20 WiFi Smart Remote Controlled House Socket  (OPTIONAL)
 
 Product description: http://www.gearbest.com/diy-parts-and-tools/pp_133571.html
 
@@ -198,7 +195,7 @@ First off, the S20 will need to be paired with your WiFi. Do to this you may use
 
 At the very least you will need the MAC address and IP address of the device.
 
-    i) Enable the module "use_orvibo_module=" in section [config]. Switch c handles this.
+    i) Enable the module "use_orvibo_module=" in section [config] and enable "enable=" for switch c to display switch on interface.
 
     ii) Set the on/off script arguments in [switch-c] section
 
@@ -208,10 +205,10 @@ At the very least you will need the MAC address and IP address of the device.
     iii) Grant sudo access
     www-data ALL=NOPASSWD: /{PATH_TO_WWW}/mypihc/bin/orvibo/s20command.sh
 
-Google Voice SMS
+Google Voice SMS (OPTIONAL)
 -------------------
 
-If you want to get Google Voice SMS working instead of using your cellular's SMS email gateway (provided you have a GV account), do the following (OPTIONAL):
+If you want to get Google Voice SMS working instead of using your cellular's SMS email gateway (provided you have a GV account), do the following:
 
     i) PY Google Voice Installation
         cd /root
