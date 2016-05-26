@@ -21,7 +21,7 @@ Ability to schedule jobs.
 
 Configuration Overview
 ==================
-All configuration is handle in the file: *config.ini*. To enable a setting in the configuration file, use *1* e.g.: "setting = 1".
+All configuration is handle in the file: ``config.ini``. To enable a setting in the configuration file, use **1** e.g.: ``setting = 1``.
 
 I've created this code while using two Foscams cameras as they have a relatively simple API for things like snapshots and basic pan/tilt. Other cameras with different APIs may still work, however modification would need to be done. If you have Foscam cameras you shouldn't have any problems.
 
