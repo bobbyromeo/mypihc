@@ -222,7 +222,7 @@
                                         if ($value)
                                             $string .= ", $key";
                                     }
-                                    echo '('.str_replace('_', ' ', substr($string, 2)).')';
+                                    echo '<b>PIR Alarm Actions:</b> '.str_replace('_', ' ', substr($string, 2)).'.';
                                 ?>
                             </span>
                         </div>
