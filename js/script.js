@@ -5,46 +5,64 @@ MyPi.updateCheckSwitchInterval = 60000;
 MyPi.updateUptimeInterval = 60000;
 MyPi.updateImageInterval = 250;
 MyPi.feed = {
-    'switch-d': {
-        'context': ($('canvas#switch-d').length) ? $('canvas#switch-d')[0].getContext('2d') : undefined,
+    'switch-q': {
+        'context': ($('canvas#switch-q').length) ? $('canvas#switch-q')[0].getContext('2d') : undefined,
         'image': new Image(),
     },
-    'switch-e': {
-        'context': ($('canvas#switch-e').length) ? $('canvas#switch-e')[0].getContext('2d') : undefined,
+    'switch-r': {
+        'context': ($('canvas#switch-r').length) ? $('canvas#switch-r')[0].getContext('2d') : undefined,
         'image': new Image(),
     }
 };
 
-MyPi.feed['switch-d'].image.onload = function () {
-    MyPi.feed['switch-d'].context.drawImage(MyPi.feed['switch-d'].image, 0, 0);
+MyPi.feed['switch-q'].image.onload = function () {
+    MyPi.feed['switch-q'].context.drawImage(MyPi.feed['switch-q'].image, 0, 0);
 }
 
-MyPi.feed['switch-e'].image.onload = function () {
-    MyPi.feed['switch-e'].context.drawImage(MyPi.feed['switch-e'].image, 0, 0);
+MyPi.feed['switch-r'].image.onload = function () {
+    MyPi.feed['switch-r'].context.drawImage(MyPi.feed['switch-r'].image, 0, 0);
 }
 
 $(document).ready(function() {
     $.ajaxSetup({ cache: false });
-    enableChooser();
-    refreshCronTable(addEvents);
-    updateTime();
-    updateUptime();
-    if ($(':hidden#use_dht22_module').val()) updateDHT22();
-    if ($(':hidden#use_camera_module').val()) {
-        checkSwitchStatus('d');
-        checkSwitchStatus('e');
-        updateImage('d');
-        updateImage('e');
-    }
-    canvasLinks('d');
-    canvasLinks('e');
-    if ($(':hidden#use_pir_module').val()) checkSwitchStatus('c');
 
-    // Buttons
+    // Form choosers
+    enableChooser();
+
+    // Get list of current scheduled jobs and add to interface
+    refreshCronTable(addEvents);
+
+    // Get backend time and show in interface
+    updateTime();
+
+    // Calculate uptime of backend server and add to interface
+    updateUptime();
+
+    // If camera module is enabled
+    if ($(':hidden#use_camera_module').val()) {
+        // See if camera recordings are on by checking for pid file in backend
+        checkSwitchStatus('q');
+        checkSwitchStatus('r');
+        // Begin getting feeds from cameras
+        updateImage('q');
+        updateImage('r');
+    }
+
+    // Add links in canvases to allow for pan/tilt
+    canvasLinks('q');
+    canvasLinks('r');
+
+    // See if the PIR alarm is on by checking for pid file in backend
+    if ($(':hidden#use_pir_module').val()) checkSwitchStatus('p');
+
+    // If DHT22 temp./humdity sensor enabled
+    if ($(':hidden#use_dht22_module').val()) updateDHT22();
+
+    // Add events for switch Buttons
     $('.switchButton').each(function(index, button) {
         button = $(button);
         // Get letter
-        var regexSwitchID = /switch-([a-e])/;
+        var regexSwitchID = /switch-([a-z])/;
         var switchID = regexSwitchID.exec(button.attr('class'))[1];
         if(button.hasClass('on')) {
             button.click(function() {
@@ -57,6 +75,7 @@ $(document).ready(function() {
         }
     });
 
+    // Form for crontabs additions
     $("#crontab-form").submit(function(event) {
         event.preventDefault();
         var form = this;
@@ -112,7 +131,7 @@ function callSwitchControl(switchID, state) {
     $.get('site_manager.php', { 'action': 'control', 'switch': switchID, state: state })
         .done(function(data) {
             if (data.result) {
-                if (switchID == "c" || switchID == "d" || switchID == "e") {
+                if (switchID == "p" || switchID == "q" || switchID == "r") {
                     if (data.output.indexOf("started") > -1) {
                         label.addClass("text-danger");
                         $('#switch-'+switchID+'-spinner').removeClass('hidden');
@@ -476,8 +495,8 @@ var waitForFinalEvent = (function () {
 
 $(window).resize(function () {
     waitForFinalEvent(function(){
-        canvasLinks('d');
-        canvasLinks('e');
+        canvasLinks('q');
+        canvasLinks('r');
       //...
     }, 500, "some unique string");
 });

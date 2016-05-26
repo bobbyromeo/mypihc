@@ -43,6 +43,11 @@ if ($_GET) {
                 if (preg_match("/sending code/i", $output)) {
                     $result = true;
                 }
+                error_log($output);
+                if (preg_match("/switching on|switching off/i", $output)) {
+                    $result = true;
+                }
+
                 if (array_key_exists('pid_file', $ini_array[$getSwitch])) {
                     $pid_file = __DIR__ . $ini_array[$getSwitch]['pid_file'];
                     if ($getTargetState === '1' && file_exists($pid_file) && file_get_contents($pid_file)) {

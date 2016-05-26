@@ -173,43 +173,42 @@
                             <em>No controls enabled in config.ini.</em>
                         </div>
                     <?php } ?>
-                    <?php if (isset($ini_array['config']['use_433mhz_module']) && $ini_array['config']['use_433mhz_module'] == true) { ?>
-                    <div class="row-fluid">
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <label class="switch-a"><?php echo $ini_array['switch-a']['name']; ?></label>
-                        </div>
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <div class="btn-group">
-                                <button class="switchButton switch-a on btn btn-large btn-success" type="button">ON</button>
-                                <button class="switchButton switch-a off btn btn-large btn-danger" type="button">OFF</button>
+                    <?php
+                        foreach (preg_grep('/switch-([a-g])/', array_keys($ini_array)) as $switch) {
+                            if (((isset($ini_array['config']['use_433mhz_module']) && $ini_array['config']['use_433mhz_module'] == true) &&
+                                (isset($ini_array[$switch]['enable']) && $ini_array[$switch]['enable'] == true) &&
+                                    (isset($ini_array[$switch]['type']) && $ini_array[$switch]['type'] == "433mhz")) ||
+                               ((isset($ini_array['config']['use_orvibo_module']) && $ini_array['config']['use_orvibo_module'] == true) &&
+                                (isset($ini_array[$switch]['enable']) && $ini_array[$switch]['enable'] == true) &&
+                                    (isset($ini_array[$switch]['type']) && $ini_array[$switch]['type'] == "orvibo"))) {
+                            ?>
+                            <div class="row-fluid">
+                                <div class="col-xs-6 col-md-6 voffset1">
+                                    <label class="<?php echo $switch ?>"><?php echo $ini_array[$switch]['name']; ?></label>
+                                </div>
+                                <div class="col-xs-6 col-md-6 voffset1">
+                                    <div class="btn-group">
+                                        <button class="switchButton <?php echo $switch ?> on btn btn-large btn-success" type="button">ON</button>
+                                        <button class="switchButton <?php echo $switch ?> off btn btn-large btn-danger" type="button">OFF</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    <div class="row-fluid">
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <label class="switch-b"><?php echo $ini_array['switch-b']['name']; ?></label>
-                        </div>
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <div class="btn-group">
-                                <button class="switchButton switch-b on btn btn-large btn-success" type="button">ON</button>
-                                <button class="switchButton switch-b off btn btn-large btn-danger" type="button">OFF</button>
-                            </div>
-                        </div>
-                    </div>
+                        <?php } ?>
                     <?php } ?>
                     <!-- PIR Switch -->
-                    <?php if (isset($ini_array['config']['use_pir_module']) && $ini_array['config']['use_pir_module'] == true) { ?>
+                    <?php if ((isset($ini_array['config']['use_pir_module']) && $ini_array['config']['use_pir_module'] == true) &&
+                            (isset($ini_array['switch-p']['enable']) && $ini_array['switch-p']['enable'] == true)) { ?>
                     <div class="row-fluid">
                         <div class="col-xs-6 col-md-6 voffset1">
-                            <label class="switch-c">
-                                <?php echo $ini_array['switch-c']['name']; ?>
+                            <label class="switch-p">
+                                <?php echo $ini_array['switch-p']['name']; ?>
                             </label>
-                            <img class="hidden" src="img/ajax-loader.gif" id="switch-c-spinner" title="working...">
+                            <img class="hidden" src="img/ajax-loader.gif" id="switch-p-spinner" title="working...">
                         </div>
                         <div class="col-xs-6 col-md-6 voffset1">
                             <div class="btn-group">
-                                <button class="switchButton switch-c on btn btn-large btn-success" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>ON</button>
-                                <button class="switchButton switch-c off btn btn-large btn-danger" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>OFF</button>
+                                <button class="switchButton switch-p on btn btn-large btn-success" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>ON</button>
+                                <button class="switchButton switch-p off btn btn-large btn-danger" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>OFF</button>
                             </div>
                         </div>
                     </div>
@@ -229,35 +228,26 @@
                     </div>
                     <?php } ?>
                     <!-- Cameras Switches -->
-                    <?php if (isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == true) { ?>
-                    <div class="row-fluid">
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <label class="switch-d">
-                                <?php echo $ini_array['switch-d']['name']; ?>
-                            </label>
-                            <img class="hidden" src="img/ajax-loader.gif" id="switch-d-spinner" title="working...">
-                        </div>
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <div class="btn-group">
-                                <button class="switchButton switch-d on btn btn-large btn-success" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>ON</button>
-                                <button class="switchButton switch-d off btn btn-large btn-danger" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>OFF</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row-fluid">
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <label class="switch-e">
-                                <?php echo $ini_array['switch-e']['name']; ?>
-                            </label>
-                            <img class="hidden" src="img/ajax-loader.gif" id="switch-e-spinner" title="working...">
-                        </div>
-                        <div class="col-xs-6 col-md-6 voffset1">
-                            <div class="btn-group">
-                                <button class="switchButton switch-e on btn btn-large btn-success" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>ON</button>
-                                <button class="switchButton switch-e off btn btn-large btn-danger" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>OFF</button>
-                            </div>
-                        </div>
-                    </div>
+                    <?php
+                        foreach (preg_grep('/switch-([q-r])/', array_keys($ini_array)) as $switch) {
+                            if ((isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == true) &&
+                                (isset($ini_array[$switch]['enable']) && $ini_array[$switch]['enable'] == true)) { ?>
+
+                                <div class="row-fluid">
+                                    <div class="col-xs-6 col-md-6 voffset1">
+                                        <label class="<?php echo $switch ?>">
+                                            <?php echo $ini_array[$switch]['name']; ?>
+                                        </label>
+                                        <img class="hidden" src="img/ajax-loader.gif" id="<?php echo $switch ?>-spinner" title="working...">
+                                    </div>
+                                    <div class="col-xs-6 col-md-6 voffset1">
+                                        <div class="btn-group">
+                                            <button class="switchButton <?php echo $switch ?> on btn btn-large btn-success" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>ON</button>
+                                            <button class="switchButton <?php echo $switch ?> off btn btn-large btn-danger" type="button" <?php echo (!$path_good)?'disabled="disabled"':''?>>OFF</button>
+                                        </div>
+                                    </div>
+                                </div>
+                        <?php } ?>
                     <?php } ?>
                 </div> <!-- END Switches -->
 
@@ -265,8 +255,8 @@
                     <div class="col-xs-12 col-md-6 voffset1">
                         <?php if (isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == true) { ?>
                         <div class="fix">
-        <!--                <img class="img-responsive" id="switch-d" alt="" src="img/getting_feed.jpg" name="<?php echo $ini_array['camera1']['name'] ?>" >
-         -->                <canvas class="img-responsive" id="switch-d" width="640" height="480"></canvas>
+        <!--                <img class="img-responsive" id="switch-q" alt="" src="img/getting_feed.jpg" name="<?php echo $ini_array['camera1']['name'] ?>" >
+         -->                <canvas class="img-responsive" id="switch-q" width="640" height="480"></canvas>
                             <div class="desc noselect">
                                 <p class="desc_content"><?php echo $ini_array['camera1']['name'].' ('.$ini_array['camera1']['ip'].')'?></p>
                             </div>
@@ -277,8 +267,8 @@
                     <div class="col-md-6 voffset1">
                         <?php if (isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == true) { ?>
                         <div class="fix">
-    <!--                    <img class="img-responsive" id="switch-e" alt="" src="img/getting_feed.jpg" name="<?php echo $ini_array['camera2']['name'] ?>" >
-     -->                    <canvas class="img-responsive" id="switch-e" width="640" height="480"></canvas>
+    <!--                    <img class="img-responsive" id="switch-r" alt="" src="img/getting_feed.jpg" name="<?php echo $ini_array['camera2']['name'] ?>" >
+     -->                    <canvas class="img-responsive" id="switch-r" width="640" height="480"></canvas>
                             <div class="desc noselect">
                             <p class="desc_content"><?php echo $ini_array['camera2']['name'].' ('.$ini_array['camera2']['ip'].')'?></p>
                             </div>
@@ -303,25 +293,38 @@
                         <div class="col-xs-12 col-md-1">
                             <h4>Control</h4>
                             <select name="switch" id="switch" class="form-control">
-                                <?php if (isset($ini_array['config']['use_433mhz_module']) && $ini_array['config']['use_433mhz_module'] == true) { ?>
-                                <option value="switch-a"><?php echo $ini_array['switch-a']['name']; ?></option>
-                                <option value="switch-b"><?php echo $ini_array['switch-b']['name']; ?></option>
+                                <?php
+                                foreach (preg_grep('/switch-([a-g])/', array_keys($ini_array)) as $switch) {
+                                    if (((isset($ini_array['config']['use_433mhz_module']) && $ini_array['config']['use_433mhz_module'] == true) &&
+                                        (isset($ini_array[$switch]['enable']) && $ini_array[$switch]['enable'] == true) &&
+                                            (isset($ini_array[$switch]['type']) && $ini_array[$switch]['type'] == "433mhz")) ||
+                                    ((isset($ini_array['config']['use_orvibo_module']) && $ini_array['config']['use_orvibo_module'] == true) &&
+                                        (isset($ini_array[$switch]['enable']) && $ini_array[$switch]['enable'] == true) &&
+                                            (isset($ini_array[$switch]['type']) && $ini_array[$switch]['type'] == "orvibo"))) { ?>
+                                        <option value="<?php echo $switch ?>"><?php echo $ini_array[$switch]['name']; ?></option>
+                                    <?php } ?>
                                 <?php } ?>
                                 <?php
-                                if (isset($ini_array['config']['use_pir_module']) && $ini_array['config']['use_pir_module'] == true)
+                                if ((isset($ini_array['config']['use_pir_module']) && $ini_array['config']['use_pir_module'] == true) &&
+                                    (isset($ini_array['switch-p']['enable']) && $ini_array['switch-p']['enable'] == true))
                                     if ($path_good)
-                                        echo '<option value="switch-c">'.$ini_array['switch-c']['name'].'</option>';
+                                        echo '<option value="switch-p">'.$ini_array['switch-p']['name'].'</option>';
                                 ?>
                                 <?php
-                                if (isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == true)
-                                    if ($path_good)
-                                        echo '<option value="switch-d">'.$ini_array['switch-d']['name'].'</option>'.
-                                            '<option value="switch-e">'.$ini_array['switch-e']['name'].'</option>';
-                                ?>
+                                foreach (preg_grep('/switch-([q-r])/', array_keys($ini_array)) as $switch) {
+                                    if ((isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == true) &&
+                                        (isset($ini_array[$switch]['enable']) && $ini_array[$switch]['enable'] == true)) {
+                                        if ($path_good) {
+                                            echo '<option value="'.$switch.'">'.$ini_array[$switch]['name'].'</option>';
+                                        }
+                                    }
+                                }?>
+
                                 <?php
-                                if (isset($ini_array['config']['use_dht22_module']) && $ini_array['config']['use_dht22_module'] == true)
-                                    echo '<option value="switch-f">'.$ini_array['switch-f']['name'].'</option>';
-                                ?>
+                                if ((isset($ini_array['config']['use_dht22_module']) && $ini_array['config']['use_dht22_module'] == true) &&
+                                    (isset($ini_array['switch-s']['enable']) && $ini_array['switch-s']['enable'] == true)) {
+                                    echo '<option value="switch-s">'.$ini_array['switch-s']['name'].'</option>';
+                                } ?>
                             </select>
                         </div>
                         <div class="col-xs-12 col-md-1">
