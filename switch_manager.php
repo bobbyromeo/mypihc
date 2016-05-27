@@ -16,7 +16,6 @@ if (!isset($_COOKIE['visited'])) {
 
 
 if ($_GET) {
-    // error_log( print_r( $ini_array, true ) );
     // error_log( print_r( $_GET, true ) );
     if (isset($_GET['action']) && $_GET['action'] == "control" &&
         isset($_GET['switch']) && !empty($_GET['switch'])) {

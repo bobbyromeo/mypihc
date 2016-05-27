@@ -1,6 +1,5 @@
 <?php
 session_start();
-//$ini_array = parse_ini_file("config.ini", true);
 $output = "";
 $result = "";
 
@@ -83,25 +82,34 @@ if ($_GET) {
                 $direction = $_GET['direction'];
                 switch ($direction) {
                     case "right":
-                        $command = "4";
+                        // $command = "4";
+                        $direction_uri = "move_right_uri";
                         break;
                     case "left":
-                        $command = "6";
+                        //$command = "6";
+                        $direction_uri = "move_left_uri";
                         break;
                     case "down":
-                        $command = "2";
+                        //$command = "2";
+                        $direction_uri = "move_down_uri";
                         break;
                     case "up":
-                        $command = "0";
+                        //$command = "0";
+                        $direction_uri = "move_up_uri";
                         break;
                     default:
-                        $command = "1";
+                        // $command = "1";
+                        $direction_uri = "";
                 }
 
                 try {
                     $camera = $ini_array['switch-'.$switch]['use_as_camera'];
-                    $url = 'http://'.$ini_array[$camera]['ip'].'/decoder_control.cgi?command='.$command.'&onestep=1&user='.$ini_array[$camera]['username'].'&pwd='.$ini_array[$camera]['password'];
-                    $response = file_get_contents($url);
+                    if ($ini_array[$camera]['type'] == "foscam") {
+                         $move_uri = $ini_array['foscam'][$direction_uri];
+                    }
+                    //$url = 'http://'.$ini_array[$camera]['ip'].'/decoder_control.cgi?command='.$command.'&onestep=1&user='.$ini_array[$camera]['username'].'&pwd='.$ini_array[$camera]['password'];
+                    $move_uri = str_replace(array('{ip}', '{username}', '{password}'), array($ini_array[$camera]['ip'], $ini_array[$camera]['username'], $ini_array[$camera]['password']), $move_uri);
+                    $response = file_get_contents($move_uri);
                     $result = true;
                     $output = $response;
                 } catch (Exception $e) {
