@@ -168,7 +168,8 @@
                 <div class="col-xs-12 col-md-4">
                     <?php if ( isset($ini_array['config']['use_433mhz_module']) && $ini_array['config']['use_433mhz_module'] == false &&
                          isset($ini_array['config']['use_pir_module']) && $ini_array['config']['use_pir_module'] == false &&
-                         isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == false) { ?>
+                         isset($ini_array['config']['use_camera_module']) && $ini_array['config']['use_camera_module'] == false &&
+                         isset($ini_array['config']['use_orvibo_module']) && $ini_array['config']['use_orvibo_module'] == false) { ?>
                         <div class="row-fluid">
                             <em>No controls enabled in config.ini.</em>
                         </div>

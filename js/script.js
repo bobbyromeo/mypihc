@@ -46,11 +46,11 @@ $(document).ready(function() {
         // Begin getting feeds from cameras
         updateImage('q');
         updateImage('r');
+        // Add links in canvases to allow for pan/tilt
+        canvasLinks('q');
+        canvasLinks('r');
     }
 
-    // Add links in canvases to allow for pan/tilt
-    canvasLinks('q');
-    canvasLinks('r');
 
     // See if the PIR alarm is on by checking for pid file in backend
     if ($(':hidden#use_pir_module').val()) checkSwitchStatus('p');
