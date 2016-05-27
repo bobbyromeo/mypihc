@@ -20,7 +20,8 @@ import glob
 import shlex
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'common')))
-from utils import change_file_owner, sendGVSMS, sendEmail, CONFIG, IS_ERROR, create_savedir, remove_file, clean_creds
+from utils import change_file_owner, sendGVSMS, sendEmail, CONFIG, IS_ERROR, create_savedir, remove_file, clean_creds, replace_multiple
+
 
 # global variables
 already_armed = 0
@@ -73,19 +74,34 @@ def armCamera(flag):
         log.info("Disarming camera %s" % CONFIG['cam_ip'])
         already_armed = 0
 
-    command = [
-        CONFIG['path_to_wget'], '-q', '-O', '-',
-        'http://' + CONFIG['cam_ip'] + '/set_alarm.cgi?motion_armed=1&motion_sensitivity=' + CONFIG['cam_motion_sensitivity'] + '&mail=' + str(flag) + '&user=' + CONFIG['cam_user'] + '&pwd=' + CONFIG['cam_password']
-    ]
+    arm_camera_uri = CONFIG['arm_camera_uri']
+    if arm_camera_uri:
+        command = replace_multiple(
+            {
+                "{path_to_wget}": CONFIG['path_to_wget'],
+                "{ip}": CONFIG['cam_ip'],
+                "{cam_motion_sensitivity}": CONFIG['cam_motion_sensitivity'],
+                "{flag}": str(flag),
+                "{username}": CONFIG['cam_user'],
+                "{password}": CONFIG['cam_password'],
+            }, arm_camera_uri[1:-1])
 
-    log.debug(clean_creds(' '.join(command)))
-    p = subprocess.Popen(command, stdout=subprocess.PIPE)
+    # command = [
+    #     CONFIG['path_to_wget'], '-q', '-O', '-',
+    #     'http://' + CONFIG['cam_ip'] + '/set_alarm.cgi?motion_armed=1&motion_sensitivity=' + CONFIG['cam_motion_sensitivity'] + '&mail=' + str(flag) + '&user=' + CONFIG['cam_user'] + '&pwd=' + CONFIG['cam_password']
+    # ]
+    # log.debug(clean_creds(' '.join(command)))
+
+    log.debug(clean_creds(command))
+    p = subprocess.Popen(
+        shlex.split(command),
+        stdout=subprocess.PIPE)
     stdout, stderr = p.communicate()
     log.debug('Command Output: ' + stdout.strip(' \t\n\r'))
 
 
 def startRecord(arg, stop_event):
-    p = None
+    p = command = None
 
     target_dir = os.path.join(CONFIG['save_to_dir'], 'mypihc', 'pir')
     if not os.path.exists(target_dir):
@@ -104,17 +120,29 @@ def startRecord(arg, stop_event):
         if p:
             p.terminate()
 
-        cmd = CONFIG['path_to_ffmpeg'] + ' -use_wallclock_as_timestamps 1 -f mjpeg -i "http://' + CONFIG['cam_ip'] + '/videostream.cgi?user=' \
-            + CONFIG['cam_user'] + '&pwd=' + CONFIG['cam_password'] + '" -i "http://' + CONFIG['cam_ip'] + '/videostream.asf?user=' + CONFIG['cam_user'] \
-            + '&pwd=' + CONFIG['cam_password'] + '" -map 0:v -map 1:a -acodec copy -vcodec copy '  \
-            + os.path.join(target_dir, CONFIG['cam_prefix_file_name'] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv')
-        log.debug(clean_creds(cmd))
+        record_on_motion_command = CONFIG['record_on_motion_command']
+        if record_on_motion_command:
+            output = os.path.join(target_dir, CONFIG['cam_prefix_file_name'] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv')
+            command = replace_multiple(
+                {
+                    "{path_to_ffmpeg}": CONFIG['path_to_ffmpeg'],
+                    "{ip}": CONFIG['cam_ip'],
+                    "{username}": CONFIG['cam_user'],
+                    "{password}": CONFIG['cam_password'],
+                    "{output}": output
+                }, record_on_motion_command[1:-1])
+        # command = CONFIG['path_to_ffmpeg'] + ' -use_wallclock_as_timestamps 1 -f mjpeg -i "http://' + CONFIG['cam_ip'] + '/videostream.cgi?user=' \
+        #     + CONFIG['cam_user'] + '&pwd=' + CONFIG['cam_password'] + '" -i "http://' + CONFIG['cam_ip'] + '/videostream.asf?user=' + CONFIG['cam_user'] \
+        #     + '&pwd=' + CONFIG['cam_password'] + '" -map 0:v -map 1:a -acodec copy -vcodec copy '  \
+        #     + os.path.join(target_dir, CONFIG['cam_prefix_file_name'] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv')
+        if command:
+            log.debug(clean_creds(command))
+            p = subprocess.Popen(
+                shlex.split(command),
+                shell=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
 
-        p = subprocess.Popen(
-            shlex.split(cmd),
-            shell=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
         stop_event.wait(CONFIG['cam_record_length'])
     log.debug("Stopping thread...")
     p.terminate()

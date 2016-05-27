@@ -17,6 +17,12 @@ logging.config.fileConfig(os.path.abspath(os.path.join(os.path.dirname(__file__)
 log = logging.getLogger(__name__)
 
 
+def replace_multiple(rep, text):
+    rep = dict((re.escape(k), v) for k, v in rep.iteritems())
+    pattern = re.compile("|".join(rep.keys()))
+    return pattern.sub(lambda m: rep[re.escape(m.group(0))], text)
+
+
 def clean_creds(text):
     wget_regex = '([&|\?]user\=)(?:[^\&]+)(&pwd\=)(?:[^\&""]+)'
     gv_regex = '(-e)\s*(?:[^\s]+)\s*(-p)\s*(?:[^\s]+)'
@@ -79,9 +85,15 @@ def getSettings():
             CONFIG['cam_prefix_file_name'] = config.get(camera_to_use_record, 'name')
             CONFIG['cam_motion_sensitivity'] = config.get(camera_to_use_record, 'cam_motion_sensitivity')
 
-            if not all([CONFIG['cam_ip'], CONFIG['cam_user'], CONFIG['cam_password'], CONFIG['cam_prefix_file_name'], CONFIG['cam_motion_sensitivity']]):
+            CONFIG['cam_type'] = config.get(camera_to_use_record, 'type')
+
+            if not all([CONFIG['cam_ip'], CONFIG['cam_user'], CONFIG['cam_password'], CONFIG['cam_prefix_file_name'], CONFIG['cam_motion_sensitivity'], CONFIG['cam_type']]):
                 log.error("Missing camera specific parameters for PIR module")
                 IS_ERROR = True
+
+            if CONFIG['cam_type'] in config.sections():
+                CONFIG['arm_camera_uri'] = config.get(CONFIG['cam_type'], 'arm_camera_uri')
+                CONFIG['record_on_motion_command'] = config.get(CONFIG['cam_type'], 'record_on_motion_command')
         else:
             log.error("Error selecting camera recording for PIR module, exiting")
             IS_ERROR = True

@@ -25,8 +25,14 @@ read_config() {
     while read key value
     do
         key=${key// }
-        value=${value// }
+        # echo $key, $value
+        if [[ $value =~ ^\ ?\' ]] && [[ $value =~ \ ?\'$ ]]; then
+            #echo "!!!$value starts with and ends with \'!!!"
+            value=${value// /#}
+        fi
+        value=${value// /}
         eval $key="$value"
+
     done < $tmp_file
     IFS="$oldIFS"
     #cat $tmp_file
@@ -59,16 +65,33 @@ start() {
         echo_log "Unable to read config file for data"
         exit 1
     fi
-    echo_log "Starting $PROG.sh on $CAMERA"
-    command -v $path_to_ffmpeg >/dev/null 2>&1 || { echo_log >&2 "I require ffmpeg but it's not installed.  Aborting."; exit 1; }
-    echo_log "$path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i \"http://$ip/videostream.cgi?user=XXXXXX&pwd=XXXXXX\" -i \"http://$ip/videostream.asf?user=XXXXXX&pwd=XXXXXX\" -map 0:v -map 1:a -acodec copy -vcodec copy -f segment -segment_time $cam_record_length -reset_timestamps 1 \"$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv\" > /dev/null 2>&1 &"
+
+    if [ "$type" == "foscam" ]
+    then
+        read_config 'foscam'
+        record_switch_command=${record_switch_command//\{path_to_ffmpeg\}/$path_to_ffmpeg}
+        record_switch_command=${record_switch_command//\{ip\}/$ip}
+        record_switch_command=${record_switch_command//\{username\}/$username}
+        record_switch_command=${record_switch_command//\{password\}/$password}
+        record_switch_command=${record_switch_command//\{cam_record_length\}/$cam_record_length}
+        record_switch_command=${record_switch_command//\{output\}/\"$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv\"}
+        record_switch_command=${record_switch_command//#/\ }
+        #record_switch_command=${record_switch_command//\"/\ }
+    fi
+
+    # echo_log "Starting $PROG.sh on $CAMERA"
+    # command -v $path_to_ffmpeg >/dev/null 2>&1 || { echo_log >&2 "I require ffmpeg but it's not installed.  Aborting."; exit 1; }
+    # echo_log "$path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i \"http://$ip/videostream.cgi?user=XXXXXX&pwd=XXXXXX\" -i \"http://$ip/videostream.asf?user=XXXXXX&pwd=XXXXXX\" -map 0:v -map 1:a -acodec copy -vcodec copy -f segment -segment_time $cam_record_length -reset_timestamps 1 \"$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv\" > /dev/null 2>&1 &"
 
     # echo -n "Starting $PROG.sh on camera: $CAMERA"
-    $path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i "http://$ip/videostream.cgi?user=$username&pwd=$password" \
-        -i "http://$ip/videostream.asf?user=$username&pwd=$password" -map 0:v -map 1:a -acodec copy -vcodec copy -f \
-        segment -segment_time $cam_record_length -reset_timestamps 1 "$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv" > /dev/null 2>&1 &
+    echo_log "Starting $PROG.sh on camera: $CAMERA ($ip)"
+    eval "${record_switch_command} >/dev/null 2>&1&"
 
+    # $path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i "http://$ip/videostream.cgi?user=$username&pwd=$password" \
+    #     -i "http://$ip/videostream.asf?user=$username&pwd=$password" -map 0:v -map 1:a -acodec copy -vcodec copy -f \
+    #     segment -segment_time $cam_record_length -reset_timestamps 1 "$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv" > /dev/null 2>&1 &
     echo $! > "$PID_FILE"
+
     echo_log "started"
 }
 
