@@ -128,8 +128,9 @@ function callSwitchControl(switchID, state) {
         label.removeClass("text-danger");
         $('#switch-'+switchID+'-spinner').addClass('hidden');
     }
-    $.get('site_manager.php', { 'action': 'control', 'switch': switchID, state: state })
+    $.get('switch_manager.php', { 'action': 'control', 'switch': switchID, state: state })
         .done(function(data) {
+            //console.log(data);
             if (data.result) {
                 if (switchID == "p" || switchID == "q" || switchID == "r") {
                     if (data.output.indexOf("started") > -1) {
@@ -153,9 +154,9 @@ function callSwitchControl(switchID, state) {
 function checkSwitchStatus(switchID) {
     var label = $('label[class*="switch-'+switchID+'"]');
     $.ajax({
-        url: 'site_manager.php',
+        url: 'switch_manager.php',
         type: 'GET',
-        timeout: 20000,
+        timeout: 10000,
         data: { action: "checkSwitchStatus", "switch": switchID },
     }).done(function(data) {
         if (data.result) {
@@ -183,7 +184,7 @@ function updateDHT22() {
     $.ajax({
         url: 'site_manager.php',
         type: 'GET',
-        timeout: 20000,
+        timeout: 10000,
         data: { action: "dht22" },
     }).done(function(data) {
         if (data.result) {
@@ -250,7 +251,7 @@ function updateImage(switchID) {
     $.ajax({
         url: 'site_manager.php',
         type: 'GET',
-        timeout: 2000,
+        timeout: 10000,
         data: { action: "updateImage", "switch": switchID },
     }).done(function(data) {
         if (data.result) {

@@ -5,7 +5,15 @@ use TiBeN\CrontabManager\CrontabJob;
 use TiBeN\CrontabManager\CrontabAdapter;
 //use TiBeN\CrontabManager\CrontabRepository;
 
-$ini_array = parse_ini_file("config.ini", true);
+session_start();
+
+if (!isset($_COOKIE['visited'])) {
+    setcookie('visited', 'yes', time() + 3600); // set visited cookie
+    $ini_array = parse_ini_file("config.ini", true);
+    $_SESSION['ini_array'] = $ini_array;
+} else {
+    $ini_array = $_SESSION['ini_array'];
+}
 
 // Post
 if ($_POST) {
