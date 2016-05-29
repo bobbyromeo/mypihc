@@ -354,6 +354,27 @@ function refreshCronTable(callback) {
         });
 }
 
+
+function reloadConfig() {
+    function on_error() {}
+    $.ajax({
+        url: 'site_manager.php',
+        type: 'GET',
+        timeout: 10000,
+        data: { action: "reloadConfig" },
+    }).done(function(data) {
+        if (data.result) {
+            location.reload();
+        } else {
+            on_error();
+        }
+    }).fail(function(jqXHR, textStatus, errorThrown) {
+        //alert("Error: " + textStatus + ": " + errorThrown);
+        on_error();
+    });
+}
+
+
 function canvasLinks(switchID) {
     // Get canvas
     var canvas = document.getElementById("switch-"+switchID);

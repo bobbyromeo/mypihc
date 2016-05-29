@@ -84,10 +84,11 @@
 
 <?php
     session_start();
-    if (!isset($_COOKIE['visited'])) {
+    if (!isset($_COOKIE['visited']) || !isset($_SESSION['ini_array'])) {
         setcookie('visited', 'yes', time() + 3600, "/"); // set visited cookie
         $ini_array = parse_ini_file("config.ini", true);
         $_SESSION['ini_array'] = $ini_array;
+
     } else {
         $ini_array = $_SESSION['ini_array'];
     }
@@ -105,10 +106,9 @@
 <!--            <ul class="nav navbar-nav">
                     <li><a class="navbar-brand" href="#">MyPi Home Control</a></li>
                 </ul> -->
-                <a class="navbar-brand" rel="home" href="#" title="Buy Sell Rent Everyting">
-                    <img style="max-width:40px; margin-top: -7px;"
-                         src="img/mypihc-logo.png">
-                    <a class="navbar-brand" href="#">MyPi Home Control</a>
+                <a class="navbar-brand" rel="home" href="#" title="" onclick="reloadConfig();">
+                    <img style="max-width:40px; margin-top: -7px;" src="img/mypihc-logo.png">
+                    <a class="navbar-brand" href="#" onclick="reloadConfig();">MyPi Home Control</a>
                 </a>
             </div>
 <!--             <div class="navbar-header navbar-right">

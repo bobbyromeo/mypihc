@@ -12,7 +12,6 @@ if (!isset($_SESSION['ini_array'])) {
     //error_log('Location: sub-time');
 }
 
-error_log( print_r( $_SESSION['ini_array'], true ) );
 if ($_GET) {
     // error_log( print_r( $_GET, true ) );
     if (isset($_GET['action']) && $_GET['action'] == "dht22") {
@@ -45,6 +44,13 @@ if ($_GET) {
 
     if (isset($_GET['action']) && $_GET['action'] == "updatetime") {
         $output = date('d/m/Y H:i:s');
+        $result = true;
+    }
+
+    if (isset($_GET['action']) && $_GET['action'] == "reloadConfig") {
+        if (isset($_SESSION['ini_array'])) {
+            unset($_SESSION['ini_array']);
+        }
         $result = true;
     }
 
