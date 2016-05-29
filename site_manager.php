@@ -3,8 +3,7 @@ session_start();
 $output = "";
 $result = "";
 
-if (!isset($_COOKIE['visited'])) {
-    setcookie('visited', 'yes', time() + 3600); // set visited cookie
+if (!isset($_SESSION['ini_array'])) {
     $ini_array = parse_ini_file("config.ini", true);
     $_SESSION['ini_array'] = $ini_array;
     //error_log('Location: first-time');
@@ -13,6 +12,7 @@ if (!isset($_COOKIE['visited'])) {
     //error_log('Location: sub-time');
 }
 
+error_log( print_r( $_SESSION['ini_array'], true ) );
 if ($_GET) {
     // error_log( print_r( $_GET, true ) );
     if (isset($_GET['action']) && $_GET['action'] == "dht22") {

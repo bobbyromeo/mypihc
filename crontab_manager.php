@@ -7,12 +7,13 @@ use TiBeN\CrontabManager\CrontabAdapter;
 
 session_start();
 
-if (!isset($_COOKIE['visited'])) {
-    setcookie('visited', 'yes', time() + 3600); // set visited cookie
+if (!isset($_SESSION['ini_array'])) {
     $ini_array = parse_ini_file("config.ini", true);
     $_SESSION['ini_array'] = $ini_array;
+    //error_log('Location: first-time');
 } else {
     $ini_array = $_SESSION['ini_array'];
+    //error_log('Location: sub-time');
 }
 
 // Post
