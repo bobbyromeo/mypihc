@@ -56,8 +56,12 @@ if ($_GET) {
                 if (preg_match("/sending code/i", $output)) {
                     $result = true;
                 }
-                // error_log($output);
+
                 if (preg_match("/switching on|switching off/i", $output)) {
+                    $result = true;
+                }
+
+                if (preg_match("/orvibo/i", $output)) {
                     $result = true;
                 }
 

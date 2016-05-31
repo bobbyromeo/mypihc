@@ -59,12 +59,9 @@ if ($_GET) {
             $switch = $_GET['switch'];
             try {
                 $camera = $ini_array['switch-'.$switch]['use_as_camera'];
-                if ($ini_array[$camera]['type'] == "foscam") {
-                    $snapshot_uri = $ini_array['foscam']['snapshot_uri'];
+                $snapshot_uri = $ini_array[$ini_array[$camera]['type']]['snapshot_uri'];
+                $img_url = str_replace(array('{ip}', '{username}', '{password}'), array($ini_array[$camera]['ip'], $ini_array[$camera]['username'], $ini_array[$camera]['password']), $snapshot_uri);
 
-                    $img_url = str_replace(array('{ip}', '{username}', '{password}'), array($ini_array[$camera]['ip'], $ini_array[$camera]['username'], $ini_array[$camera]['password']), $snapshot_uri);
-                    // error_log($snapshot_uri);
-                }
                 // $img_url = 'http://'.$ini_array[$camera]['ip'].'/snapshot.cgi?user='.$ini_array[$camera]['username'].'&pwd='.$ini_array[$camera]['password'];
                 $im = file_get_contents($img_url);
                 if ($im === false) {
@@ -110,9 +107,7 @@ if ($_GET) {
 
                 try {
                     $camera = $ini_array['switch-'.$switch]['use_as_camera'];
-                    if ($ini_array[$camera]['type'] == "foscam") {
-                         $move_uri = $ini_array['foscam'][$direction_uri];
-                    }
+                    $move_uri = $ini_array[$ini_array[$camera]['type']][$direction_uri];
                     //$url = 'http://'.$ini_array[$camera]['ip'].'/decoder_control.cgi?command='.$command.'&onestep=1&user='.$ini_array[$camera]['username'].'&pwd='.$ini_array[$camera]['password'];
                     $move_uri = str_replace(array('{ip}', '{username}', '{password}'), array($ini_array[$camera]['ip'], $ini_array[$camera]['username'], $ini_array[$camera]['password']), $move_uri);
                     $response = file_get_contents($move_uri);

@@ -24,8 +24,8 @@ read_config() {
     IFS="="
     while read key value
     do
+        [[ $key =~ ^\#\ ? ]] && continue
         key=${key// }
-        # echo $key, $value
         if [[ $value =~ ^\ ?\' ]] && [[ $value =~ \ ?\'$ ]]; then
             #echo "!!!$value starts with and ends with \'!!!"
             value=${value// /#}
@@ -90,9 +90,12 @@ start() {
     # $path_to_ffmpeg -use_wallclock_as_timestamps 1 -f mjpeg -i "http://$ip/videostream.cgi?user=$username&pwd=$password" \
     #     -i "http://$ip/videostream.asf?user=$username&pwd=$password" -map 0:v -map 1:a -acodec copy -vcodec copy -f \
     #     segment -segment_time $cam_record_length -reset_timestamps 1 "$save_to_dir/$name_`date +%F_%H-%M-%S`_%03d.mkv" > /dev/null 2>&1 &
-    echo $! > "$PID_FILE"
-
-    echo_log "started"
+    if [[ ! -z $! ]]; then
+        echo $! > "$PID_FILE"
+        echo_log "started"
+    else
+        echo_log "not started"
+    fi
 }
 
 stop(){
