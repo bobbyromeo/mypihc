@@ -152,12 +152,24 @@
                         <strong>Temp./Hum.:</strong>
                     </div>
                     <div class="col-xs-6 col-md-3">
-                        <div id="ajaxSpinnerContainer">
+                        <div id="ajaxSpinnerContainerDHT22">
                             <img src="img/ajax-loader.gif" id="ajaxSpinnerImage" title="working...">
                         </div>
                         <i><span id="dht22"></span></i>
                     </div>
                     <?php } ?>
+                </div>
+
+                <div class="row-fluid">
+                    <div class="col-xs-6 col-md-3">
+                        <strong>CPU Freq./Temp.:</strong>
+                    </div>
+                    <div class="col-xs-6 col-md-3">
+                        <div id="ajaxSpinnerContainerCPU">
+                            <img src="img/ajax-loader.gif" id="ajaxSpinnerImage" title="working...">
+                        </div>
+                        <i><span id="cpu"></span></i>
+                    </div>
                 </div>
 
                 <input id="use_dht22_module" type="hidden" value="<?php echo (isset($ini_array['config']['use_dht22_module']) && $ini_array['config']['use_dht22_module'] == true)?true:false;?>" name="use_dht22_module">
@@ -332,6 +344,11 @@
                                 if ((isset($ini_array['config']['use_dht22_module']) && $ini_array['config']['use_dht22_module'] == true) &&
                                     (isset($ini_array['switch-s']['enable']) && $ini_array['switch-s']['enable'] == true)) {
                                     echo '<option value="switch-s">'.$ini_array['switch-s']['name'].'</option>';
+                                } ?>
+
+                                <?php
+                                if ((isset($ini_array['switch-t']['enable']) && $ini_array['switch-t']['enable'] == true)) {
+                                    echo '<option value="switch-t">'.$ini_array['switch-t']['name'].'</option>';
                                 } ?>
                             </select>
                         </div>

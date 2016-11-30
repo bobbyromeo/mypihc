@@ -62,16 +62,24 @@ def getSettings():
     CONFIG['arm_camera'] = config.get('pir', 'arm_camera')
     CONFIG['send_sms'] = config.get('pir', 'send_sms')
 
+    CONFIG['sound_alarm'] = config.get('pir', 'sound_alarm')
+    CONFIG['sound_alarm_start'] = config.get('alarm', 'sound_alarm_start')
+    CONFIG['sound_alarm_stop'] = config.get('alarm', 'sound_alarm_stop')
+
     CONFIG['send_gv_sms'] = config.get('pir', 'send_gv_sms')
     CONFIG['gv_user'] = config.get('gv', 'gv_user')
     CONFIG['gv_passwd'] = config.get('gv', 'gv_passwd')
     CONFIG['sms_num'] = config.get('gv', 'sms_num')
     CONFIG['temp_threshold'] = config.get('dht22', 'temp_threshold')
     CONFIG['temp_threshold_alerts'] = config.get('dht22', 'temp_threshold_alerts')
-    CONFIG['temp_in_fahrenheit'] = config.get('dht22', 'temp_in_fahrenheit')
+    CONFIG['temp_in_fahrenheit'] = config.get('config', 'temp_in_fahrenheit')
 
     CONFIG['use_pir_module'] = config.get('config', 'use_pir_module')
     CONFIG['use_camera_module'] = config.get('config', 'use_camera_module')
+
+    CONFIG['cpu_script'] = config.get('cpu', 'script')
+    CONFIG['cpu_temp_threshold'] = config.get('cpu', 'temp_threshold')
+    CONFIG['cpu_temp_threshold_alerts'] = config.get('cpu', 'temp_threshold_alerts')
 
     for i in ['camera1', 'camera2']:
         if config.get('pir', 'record_with_' + i):

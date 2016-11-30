@@ -14,23 +14,26 @@ import subprocess
 import os
 import logging
 import logging.config
-import datetime
 import threading
 import glob
 import shlex
+from datetime import datetime
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'common')))
 from utils import change_file_owner, sendGVSMS, sendEmail, CONFIG, IS_ERROR, create_savedir, remove_file, clean_creds, replace_multiple
-
 
 # global variables
 already_armed = 0
 already_sent = 0
 already_recording = 0
 already_sent_sms = 0
+already_alarm_sounded = 0
 
 t1_stop = None
 t1 = None
+
+last_event_time = datetime.now()
+time_wait_btwn_alarms = 60
 
 log = logging.getLogger(__name__)
 change_file_owner('www-data', os.path.abspath(os.path.join(os.path.dirname(__file__), '../..', 'mypihc.log')))
@@ -54,9 +57,45 @@ def signal_handler(signal, frame):
         else:
             log.debug("Thread dead")
         log.info("Recorded: " + str(countFiles()) + " file(s).")
+
+    if already_alarm_sounded and CONFIG['sound_alarm']:
+        runAlarmCmd(0)
+
     log.warn('Program exit!')
     GPIO.cleanup()
     sys.exit(0)
+
+
+def runAlarmCmd(flag):
+    global already_alarm_sounded
+
+    if flag == 1:
+        if already_alarm_sounded == 1:
+            log.info("Sounding alarm...")
+            cmd = CONFIG['sound_alarm_start']
+        else:
+            log.info("Not triggering alarm...")
+            already_alarm_sounded += 1
+            return
+
+    if flag == 0:
+        log.info("Turning off alarm...")
+        cmd = CONFIG['sound_alarm_stop']
+        already_alarm_sounded = 0
+
+    if cmd.startswith("'") and cmd.endswith("'"):
+        cmd = cmd[1:-1]
+
+    log.debug("Running command: %s" % cmd)
+    p = subprocess.Popen(
+        shlex.split(cmd),
+        stdout=subprocess.PIPE)
+    p.wait()
+
+    if p.returncode:
+        log.error("Alarm command did not run correctly")
+
+    already_alarm_sounded += 1
 
 
 def armCamera(flag):
@@ -122,7 +161,7 @@ def startRecord(arg, stop_event):
 
         record_on_motion_command = CONFIG['record_on_motion_command']
         if record_on_motion_command:
-            output = os.path.join(target_dir, CONFIG['cam_prefix_file_name'] + '_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv')
+            output = os.path.join(target_dir, CONFIG['cam_prefix_file_name'] + '_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.mkv')
             command = replace_multiple(
                 {
                     "{path_to_ffmpeg}": CONFIG['path_to_ffmpeg'],
@@ -152,8 +191,70 @@ def countFiles():
     return len([f for f in glob.glob(os.path.join(CONFIG['save_to_dir'], CONFIG['cam_prefix_file_name'] + '*.asf')) if os.path.isfile(f)])
 
 
-def main():
+def do_alarm():
     global already_sent_sms, already_sent, already_recording, t1_stop, t1
+
+    if not already_sent_sms and CONFIG['send_sms']:
+        log.info("  Sending sms through email...")
+        sendEmail(
+            CONFIG['email_sms'],
+            CONFIG['email_from_addr'],
+            'Motion detected',
+            'There\'s been movement detected in the house.',
+            CONFIG['email_smtp'],
+            CONFIG['email_smtp_port'],
+            CONFIG['email_user'],
+            CONFIG['email_passwd'])
+        already_sent_sms = 1
+    # GV sms
+    if not already_sent_sms and CONFIG['send_gv_sms']:
+        log.info("  Sending sms through GV...")
+        sendGVSMS(
+            CONFIG['gv_user'],
+            CONFIG['gv_passwd'],
+            CONFIG['sms_num'],
+            'There\'s been movement detected in the house.')
+        already_sent_sms = 1
+    # email
+    if not already_sent and CONFIG['email_on_motion']:
+        log.info("  Sending email...")
+        sendEmail(
+            CONFIG['email_send_to'],
+            CONFIG['email_from_addr'],
+            'Motion detected',
+            'There\'s been movement detected in the house.',
+            CONFIG['email_smtp'],
+            CONFIG['email_smtp_port'],
+            CONFIG['email_user'],
+            CONFIG['email_passwd'])
+
+        already_sent = 1
+    # record
+    if not already_recording and CONFIG['record_on_motion']:
+        log.info("  Starting recording!")
+        t1_stop = threading.Event()
+        t1 = threading.Thread(target=startRecord, args=(
+            1,
+            t1_stop,
+        ))
+        t1.start()
+        already_recording = 1
+
+    # arm camera
+    if CONFIG['arm_camera']:
+        armCamera(1)
+
+    # sound alarm
+    if CONFIG['sound_alarm']:
+        runAlarmCmd(1)
+
+
+def is_alarm():
+    return any([already_sent_sms, already_sent, already_recording])
+
+
+def main():
+    global last_event_time
 
     # catch signals
     signal.signal(signal.SIGINT, signal_handler)
@@ -199,62 +300,26 @@ def main():
             if Current_State == 1 and Previous_State == 0:
                 # PIR is triggered
                 log.info("  Motion detected!")
-                # sms
-                if not already_sent_sms and CONFIG['send_sms']:
-                    log.info("  Sending sms through email...")
-                    sendEmail(
-                        CONFIG['email_sms'],
-                        CONFIG['email_from_addr'],
-                        'Motion detected',
-                        'There\'s been movement detected in the house.',
-                        CONFIG['email_smtp'],
-                        CONFIG['email_smtp_port'],
-                        CONFIG['email_user'],
-                        CONFIG['email_passwd'])
-                    already_sent_sms = 1
-                # GV sms
-                if not already_sent_sms and CONFIG['send_gv_sms']:
-                    log.info("  Sending sms through GV...")
-                    sendGVSMS(
-                        CONFIG['gv_user'],
-                        CONFIG['gv_passwd'],
-                        CONFIG['sms_num'],
-                        'There\'s been movement detected in the house.')
-                    already_sent_sms = 1
-                # email
-                if not already_sent and CONFIG['email_on_motion']:
-                    log.info("  Sending email...")
-                    sendEmail(
-                        CONFIG['email_send_to'],
-                        CONFIG['email_from_addr'],
-                        'Motion detected',
-                        'There\'s been movement detected in the house.',
-                        CONFIG['email_smtp'],
-                        CONFIG['email_smtp_port'],
-                        CONFIG['email_user'],
-                        CONFIG['email_passwd'])
+                current_event_time = datetime.now()
 
-                    already_sent = 1
-                # record
-                if not already_recording and CONFIG['record_on_motion']:
-                    log.info("  Starting recording!")
-                    t1_stop = threading.Event()
-                    t1 = threading.Thread(target=startRecord, args=(
-                        1,
-                        t1_stop,
-                    ))
-                    t1.start()
-                    already_recording = 1
-
-                # arm camera
-                if CONFIG['arm_camera']:
-                    armCamera(1)
                 # Record previous state
                 Previous_State = 1
             elif Current_State == 0 and Previous_State == 1:
                 # PIR has returned to ready state
                 log.info("  Ready")
                 Previous_State = 0
+
+                if is_alarm():
+                    log.info("Alarm has already been triggered!!!")
+                else:
+                    tdelta = (current_event_time - last_event_time).total_seconds()
+                    log.warn("Last alarm was triggered %i seconds ago" % tdelta)
+                    if tdelta > time_wait_btwn_alarms:
+                        log.info("We probabably have a false positive")
+                    else:
+                        log.info("This could be serious!")
+                        do_alarm()
+                    last_event_time = current_event_time
 
             # Wait for 10 milliseconds
             time.sleep(0.01)
@@ -266,3 +331,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

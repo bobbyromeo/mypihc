@@ -1,6 +1,7 @@
 var MyPi = {};
 MyPi.updateTimeInterval = 1000;
 MyPi.updateDHT22Interval = 60000;
+MyPi.updateCPUInterval = 60000;
 MyPi.updateCheckSwitchInterval = 60000;
 MyPi.updateUptimeInterval = 60000;
 MyPi.updateImageInterval = 250;
@@ -37,6 +38,9 @@ $(document).ready(function() {
 
     // Calculate uptime of backend server and add to interface
     updateUptime();
+
+    // Get back cpu time
+    updateCPU();
 
     // If camera module is enabled
     if ($(':hidden#use_camera_module').val()) {
@@ -180,7 +184,7 @@ function checkSwitchStatus(switchID) {
 
 function updateDHT22() {
     $("#dht22").empty();
-    $('#ajaxSpinnerContainer').show();
+    $('#ajaxSpinnerContainerDHT22').show();
     $.ajax({
         url: 'site_manager.php',
         type: 'GET',
@@ -189,18 +193,44 @@ function updateDHT22() {
     }).done(function(data) {
         if (data.result) {
             $("#dht22").html(data.output.temperature + (data.output.unit == 'fahrenheit' ? '&#8457; / ' : '&#8451; / ') + data.output.humidity + '%');
-            $('#ajaxSpinnerContainer').hide();
+            $('#ajaxSpinnerContainerDHT22').hide();
             setTimeout(function () {
                 updateDHT22();
             }, MyPi.updateDHT22Interval);
         }
     }).fail(function(jqXHR, textStatus) {
-        $('#ajaxSpinnerContainer').hide();
+        $('#ajaxSpinnerContainerDHT22').hide();
         if(textStatus == 'timeout') {
             $("#dht22").html('Unable to poll DHT22 sensor');
         }
     });
 }
+
+function updateCPU() {
+    $("#cpu").empty();
+    $('#ajaxSpinnerContainerCPU').show();
+    $.ajax({
+        url: 'site_manager.php',
+        type: 'GET',
+        timeout: 10000,
+        data: { action: "cpu" },
+    }).done(function(data) {
+        // console.log(data);
+        if (data.result) {
+            $("#cpu").html(data.output.frequency + 'Mhz / ' + data.output.temperature + (data.output.unit == 'fahrenheit' ? '&#8457;' : '&#8451;'));
+            $('#ajaxSpinnerContainerCPU').hide();
+            setTimeout(function () {
+                updateCPU();
+            }, MyPi.updateCPUInterval);
+        }
+    }).fail(function(jqXHR, textStatus) {
+        $('#ajaxSpinnerContainerCPU').hide();
+        if(textStatus == 'timeout') {
+            $("#cpu").html('Unable to poll CPU');
+        }
+    });
+}
+
 
 function updateTime() {
     $.ajax({

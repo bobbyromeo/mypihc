@@ -29,12 +29,38 @@ if ($_GET) {
             if (!empty($output)) {
                 preg_match_all('/\[[^\[\]]*\]/', $output, $matches);
                 $arr = preg_replace("/[^0-9,.]/", "", explode(',', trim($matches[0][0])));
-                $output = array('temperature' => $arr[0], 'humidity' => $arr[1], 'unit' => ($ini_array['dht22']['temp_in_fahrenheit']) ? 'fahrenheit' : 'celsius');
+                $output = array('temperature' => $arr[0], 'humidity' => $arr[1], 'unit' => ($ini_array['config']['temp_in_fahrenheit']) ? 'fahrenheit' : 'celsius');
             }
         } else {
             $output = "DHT module is disabled";
         }
         $result = true;
+    }
+
+    if (isset($_GET['action']) && $_GET['action'] == "cpu") {
+        if (isset($ini_array['cpu']['script'])) {
+            try {
+                $cmd = __DIR__ . '/' . join('/', array(trim($ini_array['cpu']['script'], '/')));
+                if ($ini_array['cpu']['use_sudo']) {
+                    session_write_close();
+                    $output = shell_exec('sudo ' . $cmd);
+                } else {
+                    session_write_close();
+                    $output = shell_exec($cmd);
+                }
+                if (!empty($output)) {
+                    preg_match_all('/\[[^\[\]]*\]/', $output, $matches);
+                    $arr = preg_replace("/[^0-9,.]/", "", explode(',', trim($matches[0][0])));
+                    $output = array('frequency' => $arr[0], 'temperature' => $arr[1], 'unit' => ($ini_array['config']['temp_in_fahrenheit']) ? 'fahrenheit' : 'celsius');
+                    $result = true;
+                }
+
+            } catch (Exception $e) {
+                $output = 'Caught exception: ' . $e->getMessage();
+                error_log($output);
+                $result = false;
+            }
+        }
     }
 
     if (isset($_GET['action']) && $_GET['action'] == "uptime") {
